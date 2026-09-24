@@ -1,0 +1,148 @@
+body{
+    color: #292a31;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 0;
+    background-color: #e2e6ff1b;
+}
+
+header,
+main,
+footer{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+header{
+    padding-top: 48px;
+    padding-bottom: 32px;
+}
+
+section{
+    margin-top: 56px;
+}
+
+footer{
+    padding-top: 32px;
+    padding-bottom: 32px;
+}
+
+img{
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+nav{
+    display: flex;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+nav a{
+    color: #8199d581;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+h1{
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -.0.2em;
+}
+
+h2{
+    color: #29296df1;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+h3{
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+p{
+    color:#5b5b5b;
+    line-height: 2.0;
+}
+
+.feature-list{
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 24px;
+}
+
+.feature-card{
+    flex:1;
+    padding: 20px 24px;
+    margin-bottom: 0px;
+    border: 1px solid #deddea;
+    border-radius: 12px;
+    background-color: rgba(187, 187, 187, 0.379);
+}
+
+*,
+*::before,
+*::after{
+    box-sizing: border-box;
+}
+
+.subscribe-card{
+    padding: 24px;
+    margin-top: 32px;
+    background-color: rgba(187, 187, 187, 0.379);
+    border: 1px solid #deddea;
+    border-radius: 12px;
+}
+
+form{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+input{
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #dedef6;
+    border-radius: 10px;
+}
+
+button{
+    padding:12px 18px;
+    border:0;
+    border-radius: 10px;
+    color: #ffffff;
+    background-color: #3c3c9d;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+input,
+button{
+    font: inherit;
+}
+
+button:hover{
+    background-color: #18184d;
+}
+
+button:focus,
+input:focus{
+    outline: 3px solid #dedef6;
+    outline-offset: 2px;
+}
+
+button:active{
+    transform: translateY(1px);
+}
