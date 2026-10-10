@@ -215,4 +215,23 @@ button:active{
         /* 모바일에서 버튼 누르는 영역 너무 낮아지지 않게 설정 */
         min-height: 48px;
     }
+
+    #registerMessage {
+        margin-top: 16px;
+        color: #555763;
+      }
+      
+      #registerMessage.is-success {
+        color: #245c3a;
+        background-color: #e7f7ed;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+      }
+      
+      #registerButton:disabled {
+        color: #ffffff;
+        background-color: #8a88b2;
+        cursor: not-allowed;
+      }
 }
