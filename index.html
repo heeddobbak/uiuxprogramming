@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>초이스 댄스 스튜디오 | Choi's Dance Studio</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
   <header>
     <h1>초이스 댄스 스튜디오</h1>
     <p>춤을 좋아하는 모든 분들이 즐겁게 춤을 배울 수 있는 공간입니다.</p>
-  
+
     <nav aria-label="주요 메뉴">
       <a href="#about">스튜디오 소개</a>
       <a href="#features">클래스 소개</a>
@@ -42,82 +42,211 @@
       <h2>스튜디오 소개</h2>
       <h3>CHOOSE YOUR DANCE</h3>
       <p>초이스 댄스 스튜디오는 누구나 즐겁게 춤을 배우고 자신에게 맞는 댄스를 선택할 수 있는 공간입니다.</p>
-  
-      <img
-        src="./assets/images/choisdancestudio.png"
-        alt="초이스 댄스 스튜디오 로고"
-      >
+
+      <img src="./assets/images/choisdancestudio.png" alt="초이스 댄스 스튜디오 로고">
     </section>
-    
+
     <section id="features">
-        <h2>클래스 소개</h2>
-        
+      <h2>클래스 소개</h2>
+
+      <div class="tabs" role="tablist" aria-label="클래스 선택">
+        <button id="tab-danceeter" class="tab is-active" type="button"
+          role="tab" aria-selected="true"
+          aria-controls="feature-danceeter" data-target="#feature-danceeter">
+          Dance-eter
+        </button>
+
+        <button id="tab-shuffle" class="tab" type="button"
+          role="tab" aria-selected="false"
+          aria-controls="feature-shuffle" data-target="#feature-shuffle">
+          Easy Shuffle
+        </button>
+
+        <button id="tab-starter" class="tab" type="button"
+          role="tab" aria-selected="false"
+          aria-controls="feature-starter" data-target="#feature-starter">
+          Dance Starter
+        </button>
+
+        <button id="tab-kids" class="tab" type="button"
+          role="tab" aria-selected="false"
+          aria-controls="feature-kids" data-target="#feature-kids">
+          Kids K-POP
+        </button>
+
+        <button id="tab-kpop" class="tab" type="button"
+          role="tab" aria-selected="false"
+          aria-controls="feature-kpop" data-target="#feature-kpop">
+          K-POP Dance
+        </button>
+
+        <button id="tab-challenge" class="tab" type="button"
+          role="tab" aria-selected="false"
+          aria-controls="feature-challenge" data-target="#feature-challenge">
+          K-POP Challenge
+        </button>
+      </div>
+
+      <div id="feature-danceeter" class="panel is-active"
+        role="tabpanel" aria-labelledby="tab-danceeter">
+
         <ul class="feature-list">
-            <li class="feature-card">
-                <h3>Danceter</h3>
-                <p>신나는 음악과 춤을 통해 즐겁게 운동하는 다이어트 댄스 클래스입니다.</p>
-            </li>
-            <li class="feature-card">
-                <h3>Easy Shuffle</h3>
-                <p>기본 동작부터 반복하며 쉽고 즐겁게 배우는 셔플댄스 클래스입니다.</p>
-            </li>
-            <li class="feature-card">
-                <h3>Dance Starter</h3>
-                <p>춤이 처음인 분들을 위해 기본기부터 차근차근 배우는 클래스입니다.</p>
-            </li>
-            <li class="feature-card">
-                <h3>Kids K-POP</h3>
-                <p>아이들이 K-POP 음악에 맞춰 즐겁게 춤을 배우는 클래스입니다.</p>
-            </li>
-            <li class="feature-card">
-                <h3>K-POP</h3>
-                <p>다양한 K-POP 음악과 안무를 배우며 춤을 즐기는 클래스입니다.</p>
-            </li>
+          <li class="feature-card">
+            <h3>Dance-eter</h3>
+            <p>신나는 음악과 춤을 통해 즐겁게 운동하는 다이어트 댄스 클래스입니다.</p>
+          </li>
         </ul>
+      </div>
+
+      <div id="feature-shuffle" class="panel"
+        role="tabpanel" aria-labelledby="tab-shuffle" hidden>
+
+        <ul class="feature-list">
+          <li class="feature-card">
+            <h3>Easy Shuffle</h3>
+            <p>셔플의 기본 동작부터 차근차근 익히고 연습하는 셔플 기본기 클래스입니다.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div id="feature-starter" class="panel"
+        role="tabpanel" aria-labelledby="tab-starter" hidden>
+
+        <ul class="feature-list">
+          <li class="feature-card">
+            <h3>Dance Starter</h3>
+            <p>춤의 기본 동작과 리듬감을 차근차근 익히는 댄스 기본기 클래스입니다.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div id="feature-kids" class="panel"
+        role="tabpanel" aria-labelledby="tab-kids" hidden>
+
+        <ul class="feature-list">
+          <li class="feature-card">
+            <h3>Kids K-POP</h3>
+            <p>아이들이 다양한 K-POP 음악에 맞춰 즐겁게 안무를 배우는 클래스입니다.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div id="feature-kpop" class="panel"
+        role="tabpanel" aria-labelledby="tab-kpop" hidden>
+
+        <ul class="feature-list">
+          <li class="feature-card">
+            <h3>K-POP Dance</h3>
+            <p>다양한 K-POP 음악에 맞춰 안무를 배우며 춤을 즐기는 클래스입니다.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div id="feature-challenge" class="panel"
+        role="tabpanel" aria-labelledby="tab-challenge" hidden>
+
+        <ul class="feature-list">
+          <li class="feature-card">
+            <h3>K-POP Challenge</h3>
+            <p>한 단계 높은 난이도의 K-POP 안무에 도전하는 클래스입니다.</p>
+          </li>
+        </ul>
+      </div>
     </section>
-    
+
     <section id="steps">
-        <h2>수강 방법</h2>
-        
-        <ol>
-            <li>클래스 소개를 확인하고 원하는 수업을 선택합니다.</li>
-            <li>수업 일정과 시간표를 확인합니다.</li>
-            <li>수강 신청을 통해 원하는 클래스에 등록합니다.</li>
-        </ol>
+      <h2>수강 방법</h2>
+
+      <ol>
+        <li>클래스 소개를 확인하고 원하는 수업을 선택합니다.</li>
+        <li>수업 일정과 시간표를 확인합니다.</li>
+        <li>수강 신청을 통해 원하는 클래스에 등록합니다.</li>
+      </ol>
     </section>
 
     <section id="subscribe" class="subscribe-card">
       <h2>수강 신청</h2>
-    
+
       <form id="register-form">
         <label for="name">이름</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          placeholder="이름을 입력하세요"
-        >
+        <input type="text" id="name" name="name" placeholder="이름을 입력하세요">
+
+        <label for="registerClass">신청 클래스</label>
+        <select id="registerClass" name="registerClass" required>
+          <option value="">클래스를 선택하세요</option>
+          <option value="Dance-eter">Dance-eter</option>
+          <option value="Easy Shuffle">Easy Shuffle</option>
+          <option value="Dance Starter">Dance Starter</option>
+          <option value="Kids K-POP">Kids K-POP</option>
+          <option value="K-POP Dance">K-POP Dance</option>
+          <option value="K-POP Challenge">K-POP Challenge</option>
+        </select>
+
         <button id="registerButton" type="submit">수강 신청하기</button>
       </form>
-    
+
       <p id="registerMessage" aria-live="polite">
         이름을 입력한 뒤 수강 신청해주세요.
       </p>
-    
-      <p>카카오톡 채널을 통해서도 수강 문의 및 신청이 가능합니다.</p>
-    
-      <img
-        src="./assets/images/kakao-channel-qr.jpg"
-        alt="초이스 댄스 스튜디오 카카오톡 채널 QR코드"
-      >
-    </section> 
-</main>
 
-<footer>
+      <p>카카오톡 채널을 통해서도 수강 문의 및 신청이 가능합니다.</p>
+
+      <img src="./assets/images/kakao-channel-qr.jpg" alt="초이스 댄스 스튜디오 카카오톡 채널 QR코드">
+    </section>
+
+    <section id="event-practice">
+      <h2>무료 체험 수업</h2>
+
+      <div class="event-grid">
+        <article class="event-card">
+          <h3>체험 수업 안내</h3>
+          <button id="infoButton" type="button">
+            체험 수업 안내 보기
+          </button>
+          <p id="infoMessage" hidden>
+            초이스 댄스 스튜디오의 무료 체험 수업을 통해 즐겁게 춤을 경험해 보세요!
+            각 클래스별로 1회씩 무료 체험이 가능합니다.
+            클래스 시간표를 확인하고 원하는 수업을 신청해 보세요!
+          </p>
+        </article>
+
+        <article class="event-card">
+          <h3>체험 수업 신청자 이름</h3>
+
+          <label for="trialName">이름</label>
+          <input type="text" id="trialName" maxlength="10" placeholder="이름을 입력하세요">
+
+          <p id="trialNameCount" aria-live="polite">
+            0 / 10자
+          </p>
+        </article>
+
+        <article class="event-card">
+          <h3>체험 수업 안내사항 확인</h3>
+
+          <label for="trialAgree" class="agree-row">
+            <input type="checkbox" id="trialAgree">
+            체험 수업 안내사항을 확인했습니다.
+          </label>
+
+          <p id="trialAgreeMessage" aria-live="polite">
+            안내사항을 확인해주세요.
+          </p>
+
+          <button id="trialStartButton" type="button" disabled>
+            체험 수업 신청하기
+          </button>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
     <p>© 초이스 댄스 스튜디오 | Choi's Dance Studio</p>
   </footer>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 
 </body>
+
 </html>
