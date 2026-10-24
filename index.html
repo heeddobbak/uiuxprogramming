@@ -34,6 +34,7 @@
       <a href="#features">클래스 소개</a>
       <a href="#steps">수강 방법</a>
       <a href="#subscribe">수강 신청</a>
+      <a href="#registration-history">내 신청 내역</a>
     </nav>
   </header>
 
@@ -303,6 +304,7 @@
         </p>
         <p>실제 수강 신청 접수는 진행되지 않은 프로토타입입니다.</p>
 
+        <a class="history-link" href="#registration-history">내 신청 내역 보기</a>
         <button id="restartRegister" type="button">
           다시 신청하기
         </button>
@@ -310,6 +312,34 @@
 
       <p>카카오톡 채널을 통해서도 수강 문의 및 신청이 가능합니다.</p>
       <img src="./assets/images/kakao-channel-qr.jpg" alt="초이스 댄스 스튜디오 카카오톡 채널 QR코드">
+    </section>
+
+    <section id="registration-history" aria-labelledby="historyTitle">
+      <h2 id="historyTitle" tabindex="-1">내 신청 내역</h2>
+      <p>이 브라우저에 저장되는 과제용 신청 내역입니다. 실제 수강 신청 접수는 진행되지 않습니다.</p>
+      <p id="historyNotice" role="status" aria-live="polite"></p>
+      <div id="historyEmpty" class="history-card">
+        <h3>아직 신청 내역이 없습니다.</h3>
+        <p>원하는 클래스에 신청하면 이곳에서 내역을 확인하고 취소할 수 있습니다.</p>
+        <button id="historyStart" type="button">수강 신청 시작하기</button>
+      </div>
+      <ul id="historyList" class="history-list" aria-label="저장된 신청 목록"></ul>
+      <dialog id="historyDetail" aria-labelledby="historyDetailTitle">
+        <h3 id="historyDetailTitle">신청 상세 내역</h3>
+        <dl id="historyDetailContent" class="register-summary"></dl>
+        <p id="cancelFeedback" role="status" aria-live="polite"></p>
+        <div id="cancelConfirm" hidden>
+          <p>이 신청을 취소하시겠습니까? 취소한 내역은 목록에 남으며 되돌릴 수 없습니다.</p>
+          <div class="register-actions">
+            <button id="keepRegistration" type="button">신청 유지하기</button>
+            <button id="confirmCancellation" class="danger-button" type="button">신청 취소하기</button>
+          </div>
+        </div>
+        <div class="register-actions">
+          <button id="closeHistoryDetail" type="button">목록으로 돌아가기</button>
+          <button id="requestCancellation" class="danger-button" type="button">신청 취소</button>
+        </div>
+      </dialog>
     </section>
 
     <section id="event-practice">

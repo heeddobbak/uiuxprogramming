@@ -1,4 +1,4 @@
-/* 7주차 단계형 수강 신청 프로토타입 */
+/* 7·8주차 수강 신청 및 내역 관리 프로토타입 */
 
 // 신청 정보 저장
 const formData = {
@@ -305,6 +305,7 @@ registerForm.addEventListener("submit", function (event) {
   if (currentStep !== 2 || registerForm.hidden) return;
   if (!validateApplicant() || !validateClassSelection()) return;
 
+  addRegistration();
   currentStep = null;
   registerForm.hidden = true;
   registerProgress.hidden = true;
@@ -424,3 +425,169 @@ function handleTrialAgreeChange() {
 }
 
 trialAgree.addEventListener("change", handleTrialAgreeChange);
+
+// 8주차: 완료한 신청을 저장하고 다시 확인·취소하기
+const HISTORY_KEY = "chois-dance-registrations-v1";
+const historyList = document.querySelector("#historyList");
+const historyEmpty = document.querySelector("#historyEmpty");
+const historyNotice = document.querySelector("#historyNotice");
+const historyDetail = document.querySelector("#historyDetail");
+const historyDetailContent = document.querySelector("#historyDetailContent");
+const cancelConfirm = document.querySelector("#cancelConfirm");
+const cancelFeedback = document.querySelector("#cancelFeedback");
+const requestCancellation = document.querySelector("#requestCancellation");
+let selectedRegistrationId = null;
+let detailOpener = null;
+let storageAvailable = true;
+let registrations = loadRegistrations();
+
+function loadRegistrations() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (raw === null) return [];
+    const records = JSON.parse(raw);
+    const fields = ["id", "name", "phone", "className", "plan", "mixClass", "createdAt"];
+    if (!Array.isArray(records) || !records.every(function (record) {
+      return record && fields.every(function (key) { return typeof record[key] === "string"; }) &&
+        record.id !== "" && !Number.isNaN(Date.parse(record.createdAt)) &&
+        ["active", "cancelled"].includes(record.status);
+    }) || new Set(records.map(function (record) { return record.id; })).size !== records.length) {
+      throw new Error("Invalid history");
+    }
+    return records;
+  } catch (error) {
+    storageAvailable = false;
+    historyNotice.textContent = "저장된 내역을 불러올 수 없습니다. 새 신청은 현재 화면에서만 유지됩니다. 브라우저 저장 설정을 확인한 뒤 새로고침해주세요.";
+    return [];
+  }
+}
+
+function saveRegistrations() {
+  try {
+    if (!storageAvailable) return;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(registrations));
+  } catch (error) {
+    storageAvailable = false;
+    historyNotice.textContent = "브라우저에 내역을 저장하지 못했습니다. 변경 내용은 현재 화면에서만 유지됩니다. 저장 공간과 브라우저 설정을 확인해주세요.";
+  }
+}
+
+function registrationClasses(record) {
+  return record.mixClass ? record.className + " + " + record.mixClass : record.className;
+}
+
+function addRegistration() {
+  registrations.unshift({
+    ...formData,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    status: "active"
+  });
+  saveRegistrations();
+  renderRegistrations();
+}
+
+function renderRegistrations() {
+  historyList.replaceChildren();
+  historyEmpty.hidden = registrations.length > 0;
+  registrations.forEach(function (record) {
+    const item = document.createElement("li");
+    item.className = "history-card";
+    const title = document.createElement("h3");
+    title.textContent = registrationClasses(record);
+    const plan = document.createElement("p");
+    plan.textContent = record.plan;
+    const date = document.createElement("p");
+    date.textContent = "신청일: " + new Date(record.createdAt).toLocaleString("ko-KR");
+    const status = document.createElement("span");
+    status.className = "history-status" + (record.status === "cancelled" ? " is-cancelled" : "");
+    status.textContent = record.status === "cancelled" ? "취소됨" : "신청 완료";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "상세 보기";
+    button.setAttribute("aria-label", registrationClasses(record) + " 신청 상세 보기");
+    button.addEventListener("click", function () {
+      selectedRegistrationId = record.id;
+      detailOpener = button;
+      renderRegistrationDetail();
+      historyDetail.showModal();
+    });
+    item.append(title, plan, date, status, button);
+    historyList.append(item);
+  });
+}
+
+function renderRegistrationDetail() {
+  const record = registrations.find(function (item) { return item.id === selectedRegistrationId; });
+  cancelConfirm.hidden = true;
+  cancelFeedback.textContent = "";
+  historyDetailContent.replaceChildren();
+  requestCancellation.hidden = !record || record.status !== "active";
+  if (!record) {
+    cancelFeedback.textContent = "신청 내역을 찾을 수 없습니다. 목록으로 돌아가 다른 내역을 선택해주세요.";
+    return;
+  }
+  const rows = [
+    ["이름", record.name], ["휴대전화 번호", record.phone],
+    ["신청 클래스", registrationClasses(record)], ["수강 유형", record.plan],
+    ["신청일", new Date(record.createdAt).toLocaleString("ko-KR")],
+    ["상태", record.status === "cancelled" ? "취소됨" : "신청 완료"]
+  ];
+  rows.forEach(function (row) {
+    const label = document.createElement("dt");
+    const value = document.createElement("dd");
+    label.textContent = row[0];
+    value.textContent = row[1];
+    historyDetailContent.append(label, value);
+  });
+}
+
+requestCancellation.addEventListener("click", function () {
+  const record = registrations.find(function (item) { return item.id === selectedRegistrationId; });
+  if (!record || record.status !== "active") { renderRegistrationDetail(); return; }
+  cancelConfirm.hidden = false;
+  requestCancellation.hidden = true;
+  document.querySelector("#keepRegistration").focus();
+});
+
+document.querySelector("#keepRegistration").addEventListener("click", function () {
+  cancelConfirm.hidden = true;
+  requestCancellation.hidden = false;
+  cancelFeedback.textContent = "신청을 유지했습니다.";
+  requestCancellation.focus();
+});
+
+document.querySelector("#confirmCancellation").addEventListener("click", function () {
+  const record = registrations.find(function (item) { return item.id === selectedRegistrationId; });
+  if (cancelConfirm.hidden || !record || record.status !== "active") return;
+  record.status = "cancelled";
+  saveRegistrations();
+  renderRegistrations();
+  renderRegistrationDetail();
+  cancelFeedback.textContent = "신청을 취소했습니다. 취소된 내역은 목록에서 다시 확인할 수 있습니다." +
+    (storageAvailable ? "" : " 브라우저 저장이 불가능하여 취소 상태는 현재 화면에서만 유지됩니다.");
+  document.querySelector("#closeHistoryDetail").focus();
+});
+
+document.querySelector("#closeHistoryDetail").addEventListener("click", function () {
+  historyDetail.close();
+});
+historyDetail.addEventListener("close", function () {
+  cancelConfirm.hidden = true;
+  selectedRegistrationId = null;
+  if (detailOpener && detailOpener.isConnected) detailOpener.focus();
+  else document.querySelector("#historyTitle").focus();
+});
+
+document.querySelector("#historyStart").addEventListener("click", function () {
+  if (registerForm.hidden) {
+    if (!registerComplete.hidden) restartRegister.click();
+    else openRegisterDialog.click();
+  }
+  document.querySelector("#subscribe").scrollIntoView({ block: "start" });
+  if (!registerForm.hidden) {
+    registerSteps[currentStep].querySelector("input, select, button").focus();
+  }
+});
+
+renderRegistrations();
