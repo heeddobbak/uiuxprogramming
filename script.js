@@ -55,7 +55,10 @@ const backToRegisterStep2 = document.querySelector("#backToRegisterStep2");
 const restartRegister = document.querySelector("#restartRegister");
 
 // 현재 단계 표시
+let currentStep = null;
+
 function showStep(index) {
+  currentStep = index;
   registerStart.hidden = true;
   registerComplete.hidden = true;
   registerProgress.hidden = false;
@@ -136,7 +139,7 @@ nameInput.addEventListener("input", function () {
 });
 
 // 1단계: 신청자 정보 검사
-toRegisterStep2.addEventListener("click", function () {
+function validateApplicant() {
   const name = nameInput.value.trim();
   const phone = phoneInput.value;
   const phonePattern = /^010-\d{4}-\d{4}$/;
@@ -167,13 +170,18 @@ toRegisterStep2.addEventListener("click", function () {
   }
 
   if (!isValid) {
+    showStep(0);
     firstInvalidInput.focus();
-    return;
+    return false;
   }
 
   formData.name = name;
   formData.phone = phone;
+  return true;
+}
 
+toRegisterStep2.addEventListener("click", function () {
+  if (!validateApplicant()) return;
   showStep(1);
   registerClass.focus();
 });
@@ -187,7 +195,11 @@ registerPlan.addEventListener("change", function () {
     mixClass.value = "";
   }
 
-  classError.textContent = "";
+  clearFieldError(registerPlan, classError);
+  clearFieldError(mixClass, classError);
+  if (registerClass.getAttribute("aria-invalid") === "true") {
+    classError.textContent = "신청할 클래스를 선택해주세요.";
+  }
 });
 
 registerClass.addEventListener("change", function () {
@@ -199,7 +211,7 @@ mixClass.addEventListener("change", function () {
 });
 
 // 2단계: 수강 조건 검사
-toRegisterStep3.addEventListener("click", function () {
+function validateClassSelection() {
   const selectedClass = registerClass.value;
   const selectedPlan = registerPlan.value;
   const selectedMixClass = mixClass.value;
@@ -214,8 +226,9 @@ toRegisterStep3.addEventListener("click", function () {
       classError,
       "신청할 클래스를 선택해주세요."
     );
+    showStep(1);
     registerClass.focus();
-    return;
+    return false;
   }
 
   if (selectedPlan === "") {
@@ -224,8 +237,9 @@ toRegisterStep3.addEventListener("click", function () {
       classError,
       "수강 유형을 선택해주세요."
     );
+    showStep(1);
     registerPlan.focus();
-    return;
+    return false;
   }
 
   if (selectedPlan === "Mix 4회") {
@@ -235,8 +249,9 @@ toRegisterStep3.addEventListener("click", function () {
         classError,
         "함께 수강할 두 번째 클래스를 선택해주세요."
       );
+      showStep(1);
       mixClass.focus();
-      return;
+      return false;
     }
 
     if (selectedClass === selectedMixClass) {
@@ -245,8 +260,9 @@ toRegisterStep3.addEventListener("click", function () {
         classError,
         "Mix 4회는 서로 다른 두 클래스를 선택해야 합니다."
       );
+      showStep(1);
       mixClass.focus();
-      return;
+      return false;
     }
   }
 
@@ -254,6 +270,12 @@ toRegisterStep3.addEventListener("click", function () {
   formData.plan = selectedPlan;
   formData.mixClass =
     selectedPlan === "Mix 4회" ? selectedMixClass : "";
+
+  return true;
+}
+
+toRegisterStep3.addEventListener("click", function () {
+  if (!validateApplicant() || !validateClassSelection()) return;
 
   summaryName.textContent = formData.name;
   summaryPhone.textContent = formData.phone;
@@ -280,6 +302,10 @@ backToRegisterStep2.addEventListener("click", function () {
 registerForm.addEventListener("submit", function (event) {
   event.preventDefault();
 
+  if (currentStep !== 2 || registerForm.hidden) return;
+  if (!validateApplicant() || !validateClassSelection()) return;
+
+  currentStep = null;
   registerForm.hidden = true;
   registerProgress.hidden = true;
   registerComplete.hidden = false;
@@ -307,6 +333,11 @@ restartRegister.addEventListener("click", function () {
   clearFieldError(mixClass, classError);
 
   mixClassField.hidden = true;
+  summaryName.textContent = "";
+  summaryPhone.textContent = "";
+  summaryClass.textContent = "";
+  summaryPlan.textContent = "";
+  registerMessage.textContent = "";
   registerMessage.classList.remove("is-success");
 
   showStep(0);
