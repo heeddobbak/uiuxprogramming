@@ -279,6 +279,230 @@ button:active {
     margin-top: 6px;
 }
 
+/* 7주차 단계형 수강 신청 */
+
+/* hidden 속성이 지정된 요소 숨기기 */
+#subscribe [hidden] {
+    display: none !important;
+}
+
+/* 신청 시작 화면 */
+#registerStart {
+    margin: 24px 0;
+}
+
+#registerStart button {
+    margin-top: 8px;
+}
+
+/* 신청 안내 팝업 */
+#registerDialog {
+    width: calc(100% - 32px);
+    max-width: 520px;
+    padding: 28px;
+    border: 1px solid #dedef6;
+    border-radius: 16px;
+    background-color: #ffffff;
+    box-shadow: 0 16px 48px rgba(30, 30, 80, 0.2);
+}
+
+#registerDialog::backdrop {
+    background-color: rgba(20, 20, 50, 0.55);
+}
+
+#registerDialog h3 {
+    margin-top: 0;
+}
+
+/* 신청 진행 단계 표시 */
+.register-progress {
+    display: flex;
+    gap: 12px;
+    padding: 0;
+    margin: 24px 0;
+    list-style: none;
+}
+
+.register-progress li {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 8px;
+    border: 1px solid #dedef6;
+    border-radius: 10px;
+    background-color: #f3f3f8;
+    color: #666777;
+    font-size: 15px;
+    text-align: center;
+}
+
+.register-progress li.is-current {
+    border-color: #3c3c9d;
+    background-color: #3c3c9d;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* 단계형 수강 신청 폼 */
+#register-form {
+    display: block;
+    margin-top: 24px;
+}
+
+.register-step {
+    padding: 24px;
+    border: 1px solid #dedef6;
+    border-radius: 12px;
+    background-color: #ffffff;
+}
+
+.register-step h3 {
+    margin-top: 0;
+}
+
+.register-step label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.register-step input,
+.register-step select {
+    display: block;
+    width: 100%;
+    margin: 0;
+}
+
+/* 입력 오류 안내 */
+.register-error {
+    min-height: 24px;
+    margin: 6px 0 0;
+    color: #b42318;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.register-step input.is-invalid,
+.register-step select.is-invalid {
+    border-color: #b42318;
+    background-color: #fff6f5;
+}
+
+/* Mix 4회 추가 클래스 선택 */
+#mixClassField {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 10px;
+    background-color: #f3f3f8;
+}
+
+#mixClassField label {
+    margin-top: 0;
+}
+
+#mixClassField p {
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
+/* 이전, 다음, 완료 버튼 */
+.register-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.register-actions button {
+    flex: 0 1 auto;
+}
+
+#backToRegisterStep1,
+#backToRegisterStep2,
+#closeRegisterDialog {
+    border: 1px solid #dedef6;
+    background-color: #f3f3f8;
+    color: #292a31;
+}
+
+#backToRegisterStep1:hover,
+#backToRegisterStep2:hover,
+#closeRegisterDialog:hover {
+    background-color: #e2e2f5;
+}
+
+/* 신청 내용 확인 */
+.register-summary {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 12px 16px;
+    margin: 24px 0;
+}
+
+.register-summary dt {
+    color: #555763;
+    font-weight: 700;
+}
+
+.register-summary dd {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+/* 신청 완료 화면 */
+#registerComplete {
+    margin-top: 24px;
+    border-color: #b8dfc4;
+    background-color: #f1faf4;
+}
+
+#registerComplete h3 {
+    color: #245c3a;
+}
+
+#restartRegister {
+    margin-top: 12px;
+}
+
+/* 단계형 수강 신청 모바일 화면 */
+@media (max-width: 768px) {
+    #registerDialog {
+        padding: 20px;
+    }
+
+    .register-progress {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .register-progress li {
+        padding: 10px;
+    }
+
+    .register-step {
+        padding: 16px;
+    }
+
+    .register-actions {
+        flex-direction: column;
+    }
+
+    .register-actions button {
+        width: 100%;
+    }
+
+    .register-summary {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .register-summary dd {
+        margin-bottom: 12px;
+    }
+}
+
 /* 웹페이지가 표시되는 가로 폭이 768px 이하일 때만 적용 */
 @media (max-width: 768px) {
     body {

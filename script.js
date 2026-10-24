@@ -1,56 +1,318 @@
-const serviceName = "초이스 댄스 스튜디오";
+/* 7주차 단계형 수강 신청 프로토타입 */
 
-let applicantName = "";
-let isRegistered = false;
-let submitCount = 0;
+// 신청 정보 저장
+const formData = {
+  name: "",
+  phone: "",
+  className: "",
+  plan: "",
+  mixClass: ""
+};
 
-function makeRegisterMessage(name, className, registered) {
-  if (registered === true) {
-    return name + "님의 " + className + " 클래스 수강 신청이 완료되었습니다.";
-  }
+// 화면 요소
+const registerStart = document.querySelector("#registerStart");
+const registerDialog = document.querySelector("#registerDialog");
+const openRegisterDialog = document.querySelector("#openRegisterDialog");
+const closeRegisterDialog = document.querySelector("#closeRegisterDialog");
+const confirmRegisterStart = document.querySelector("#confirmRegisterStart");
 
-  return "이름을 입력하고 클래스를 선택한 뒤 수강 신청해주세요.";
-}
-
-// 수강 신청
+const registerProgress = document.querySelector("#registerProgress");
+const progressItems = registerProgress.querySelectorAll("li");
 const registerForm = document.querySelector("#register-form");
-const nameInput = document.querySelector("#name");
-const registerClass = document.querySelector("#registerClass");
-const registerButton = document.querySelector("#registerButton");
+const registerSteps = [
+  document.querySelector("#registerStep1"),
+  document.querySelector("#registerStep2"),
+  document.querySelector("#registerStep3")
+];
+
+const registerComplete = document.querySelector("#registerComplete");
 const registerMessage = document.querySelector("#registerMessage");
 
-function handleRegister(event) {
-  event.preventDefault();
+// 입력 요소
+const nameInput = document.querySelector("#name");
+const phoneInput = document.querySelector("#phone");
+const registerClass = document.querySelector("#registerClass");
+const registerPlan = document.querySelector("#registerPlan");
+const mixClassField = document.querySelector("#mixClassField");
+const mixClass = document.querySelector("#mixClass");
 
-  const registeredName = nameInput.value.trim();
-  const selectedClass = registerClass.value;
+// 오류 메시지
+const nameError = document.querySelector("#nameError");
+const phoneError = document.querySelector("#phoneError");
+const classError = document.querySelector("#classError");
 
-  if (registeredName === "") {
-    registerMessage.textContent = "이름을 입력해주세요.";
-    nameInput.focus();
+// 신청 내용 확인 요소
+const summaryName = document.querySelector("#summaryName");
+const summaryPhone = document.querySelector("#summaryPhone");
+const summaryClass = document.querySelector("#summaryClass");
+const summaryPlan = document.querySelector("#summaryPlan");
+
+// 버튼
+const toRegisterStep2 = document.querySelector("#toRegisterStep2");
+const toRegisterStep3 = document.querySelector("#toRegisterStep3");
+const backToRegisterStep1 = document.querySelector("#backToRegisterStep1");
+const backToRegisterStep2 = document.querySelector("#backToRegisterStep2");
+const restartRegister = document.querySelector("#restartRegister");
+
+// 현재 단계 표시
+function showStep(index) {
+  registerStart.hidden = true;
+  registerComplete.hidden = true;
+  registerProgress.hidden = false;
+  registerForm.hidden = false;
+
+  registerSteps.forEach(function (step, stepIndex) {
+    step.hidden = stepIndex !== index;
+  });
+
+  progressItems.forEach(function (item, itemIndex) {
+    const isCurrent = itemIndex === index;
+
+    item.classList.toggle("is-current", isCurrent);
+
+    if (isCurrent) {
+      item.setAttribute("aria-current", "step");
+    } else {
+      item.removeAttribute("aria-current");
+    }
+  });
+}
+
+// 오류 표시 및 해제
+function setFieldError(input, messageElement, message) {
+  input.classList.add("is-invalid");
+  input.setAttribute("aria-invalid", "true");
+  messageElement.textContent = message;
+}
+
+function clearFieldError(input, messageElement) {
+  input.classList.remove("is-invalid");
+  input.removeAttribute("aria-invalid");
+  messageElement.textContent = "";
+}
+
+// 휴대전화 번호 형식 정리
+function formatPhoneNumber(value) {
+  const numbers = value.replace(/\D/g, "").slice(0, 11);
+
+  if (numbers.length <= 3) {
+    return numbers;
+  }
+
+  if (numbers.length <= 7) {
+    return numbers.slice(0, 3) + "-" + numbers.slice(3);
+  }
+
+  return (
+    numbers.slice(0, 3) + "-" +
+    numbers.slice(3, 7) + "-" +
+    numbers.slice(7)
+  );
+}
+
+// 신청 안내 팝업
+openRegisterDialog.addEventListener("click", function () {
+  registerDialog.showModal();
+});
+
+closeRegisterDialog.addEventListener("click", function () {
+  registerDialog.close();
+});
+
+confirmRegisterStart.addEventListener("click", function () {
+  registerDialog.close();
+  showStep(0);
+  nameInput.focus();
+});
+
+// 휴대전화 번호 입력 시 자동 형식 적용
+phoneInput.addEventListener("input", function () {
+  phoneInput.value = formatPhoneNumber(phoneInput.value);
+  clearFieldError(phoneInput, phoneError);
+});
+
+nameInput.addEventListener("input", function () {
+  clearFieldError(nameInput, nameError);
+});
+
+// 1단계: 신청자 정보 검사
+toRegisterStep2.addEventListener("click", function () {
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value;
+  const phonePattern = /^010-\d{4}-\d{4}$/;
+
+  clearFieldError(nameInput, nameError);
+  clearFieldError(phoneInput, phoneError);
+
+  let isValid = true;
+  let firstInvalidInput = null;
+
+  if (name === "") {
+    setFieldError(nameInput, nameError, "이름을 입력해주세요.");
+    isValid = false;
+    firstInvalidInput = nameInput;
+  }
+
+  if (!phonePattern.test(phone)) {
+    setFieldError(
+      phoneInput,
+      phoneError,
+      "010으로 시작하는 올바른 휴대전화 번호를 입력해주세요."
+    );
+    isValid = false;
+
+    if (firstInvalidInput === null) {
+      firstInvalidInput = phoneInput;
+    }
+  }
+
+  if (!isValid) {
+    firstInvalidInput.focus();
     return;
   }
 
+  formData.name = name;
+  formData.phone = phone;
+
+  showStep(1);
+  registerClass.focus();
+});
+
+// Mix 4회 선택 시 추가 클래스 표시
+registerPlan.addEventListener("change", function () {
+  const isMix = registerPlan.value === "Mix 4회";
+  mixClassField.hidden = !isMix;
+
+  if (!isMix) {
+    mixClass.value = "";
+  }
+
+  classError.textContent = "";
+});
+
+registerClass.addEventListener("change", function () {
+  clearFieldError(registerClass, classError);
+});
+
+mixClass.addEventListener("change", function () {
+  clearFieldError(mixClass, classError);
+});
+
+// 2단계: 수강 조건 검사
+toRegisterStep3.addEventListener("click", function () {
+  const selectedClass = registerClass.value;
+  const selectedPlan = registerPlan.value;
+  const selectedMixClass = mixClass.value;
+
+  clearFieldError(registerClass, classError);
+  clearFieldError(registerPlan, classError);
+  clearFieldError(mixClass, classError);
+
   if (selectedClass === "") {
-    registerMessage.textContent = "신청할 클래스를 선택해주세요.";
+    setFieldError(
+      registerClass,
+      classError,
+      "신청할 클래스를 선택해주세요."
+    );
     registerClass.focus();
     return;
   }
 
-  applicantName = registeredName;
-  isRegistered = true;
-  submitCount += 1;
+  if (selectedPlan === "") {
+    setFieldError(
+      registerPlan,
+      classError,
+      "수강 유형을 선택해주세요."
+    );
+    registerPlan.focus();
+    return;
+  }
+
+  if (selectedPlan === "Mix 4회") {
+    if (selectedMixClass === "") {
+      setFieldError(
+        mixClass,
+        classError,
+        "함께 수강할 두 번째 클래스를 선택해주세요."
+      );
+      mixClass.focus();
+      return;
+    }
+
+    if (selectedClass === selectedMixClass) {
+      setFieldError(
+        mixClass,
+        classError,
+        "Mix 4회는 서로 다른 두 클래스를 선택해야 합니다."
+      );
+      mixClass.focus();
+      return;
+    }
+  }
+
+  formData.className = selectedClass;
+  formData.plan = selectedPlan;
+  formData.mixClass =
+    selectedPlan === "Mix 4회" ? selectedMixClass : "";
+
+  summaryName.textContent = formData.name;
+  summaryPhone.textContent = formData.phone;
+
+  summaryClass.textContent = formData.mixClass
+    ? formData.className + " + " + formData.mixClass
+    : formData.className;
+
+  summaryPlan.textContent = formData.plan;
+
+  showStep(2);
+});
+
+// 이전 단계로 이동
+backToRegisterStep1.addEventListener("click", function () {
+  showStep(0);
+});
+
+backToRegisterStep2.addEventListener("click", function () {
+  showStep(1);
+});
+
+// 신청 완료
+registerForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  registerForm.hidden = true;
+  registerProgress.hidden = true;
+  registerComplete.hidden = false;
 
   registerMessage.textContent =
-    makeRegisterMessage(applicantName, selectedClass, isRegistered);
+    formData.name + "님의 수강 신청 절차가 완료되었습니다.";
 
   registerMessage.classList.add("is-success");
+});
 
-  registerButton.textContent = "신청 완료";
-  registerButton.disabled = true;
-}
+// 다시 신청
+restartRegister.addEventListener("click", function () {
+  registerForm.reset();
 
-registerForm.addEventListener("submit", handleRegister);
+  formData.name = "";
+  formData.phone = "";
+  formData.className = "";
+  formData.plan = "";
+  formData.mixClass = "";
+
+  clearFieldError(nameInput, nameError);
+  clearFieldError(phoneInput, phoneError);
+  clearFieldError(registerClass, classError);
+  clearFieldError(registerPlan, classError);
+  clearFieldError(mixClass, classError);
+
+  mixClassField.hidden = true;
+  registerMessage.classList.remove("is-success");
+
+  showStep(0);
+  nameInput.focus();
+});
+
 
 // 클래스 소개 탭 전환 (click 이벤트)
 const classTabs = document.querySelectorAll(".tab");

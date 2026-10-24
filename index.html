@@ -50,45 +50,38 @@
       <h2>클래스 소개</h2>
 
       <div class="tabs" role="tablist" aria-label="클래스 선택">
-        <button id="tab-danceeter" class="tab is-active" type="button"
-          role="tab" aria-selected="true"
+        <button id="tab-danceeter" class="tab is-active" type="button" role="tab" aria-selected="true"
           aria-controls="feature-danceeter" data-target="#feature-danceeter">
           Dance-eter
         </button>
 
-        <button id="tab-shuffle" class="tab" type="button"
-          role="tab" aria-selected="false"
+        <button id="tab-shuffle" class="tab" type="button" role="tab" aria-selected="false"
           aria-controls="feature-shuffle" data-target="#feature-shuffle">
           Easy Shuffle
         </button>
 
-        <button id="tab-starter" class="tab" type="button"
-          role="tab" aria-selected="false"
+        <button id="tab-starter" class="tab" type="button" role="tab" aria-selected="false"
           aria-controls="feature-starter" data-target="#feature-starter">
           Dance Starter
         </button>
 
-        <button id="tab-kids" class="tab" type="button"
-          role="tab" aria-selected="false"
-          aria-controls="feature-kids" data-target="#feature-kids">
+        <button id="tab-kids" class="tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kids"
+          data-target="#feature-kids">
           Kids K-POP
         </button>
 
-        <button id="tab-kpop" class="tab" type="button"
-          role="tab" aria-selected="false"
-          aria-controls="feature-kpop" data-target="#feature-kpop">
+        <button id="tab-kpop" class="tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kpop"
+          data-target="#feature-kpop">
           K-POP Dance
         </button>
 
-        <button id="tab-challenge" class="tab" type="button"
-          role="tab" aria-selected="false"
+        <button id="tab-challenge" class="tab" type="button" role="tab" aria-selected="false"
           aria-controls="feature-challenge" data-target="#feature-challenge">
           K-POP Challenge
         </button>
       </div>
 
-      <div id="feature-danceeter" class="panel is-active"
-        role="tabpanel" aria-labelledby="tab-danceeter">
+      <div id="feature-danceeter" class="panel is-active" role="tabpanel" aria-labelledby="tab-danceeter">
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -98,8 +91,7 @@
         </ul>
       </div>
 
-      <div id="feature-shuffle" class="panel"
-        role="tabpanel" aria-labelledby="tab-shuffle" hidden>
+      <div id="feature-shuffle" class="panel" role="tabpanel" aria-labelledby="tab-shuffle" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -109,8 +101,7 @@
         </ul>
       </div>
 
-      <div id="feature-starter" class="panel"
-        role="tabpanel" aria-labelledby="tab-starter" hidden>
+      <div id="feature-starter" class="panel" role="tabpanel" aria-labelledby="tab-starter" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -120,8 +111,7 @@
         </ul>
       </div>
 
-      <div id="feature-kids" class="panel"
-        role="tabpanel" aria-labelledby="tab-kids" hidden>
+      <div id="feature-kids" class="panel" role="tabpanel" aria-labelledby="tab-kids" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -131,8 +121,7 @@
         </ul>
       </div>
 
-      <div id="feature-kpop" class="panel"
-        role="tabpanel" aria-labelledby="tab-kpop" hidden>
+      <div id="feature-kpop" class="panel" role="tabpanel" aria-labelledby="tab-kpop" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -142,8 +131,7 @@
         </ul>
       </div>
 
-      <div id="feature-challenge" class="panel"
-        role="tabpanel" aria-labelledby="tab-challenge" hidden>
+      <div id="feature-challenge" class="panel" role="tabpanel" aria-labelledby="tab-challenge" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -166,31 +154,161 @@
 
     <section id="subscribe" class="subscribe-card">
       <h2>수강 신청</h2>
+      <p>원하는 클래스와 수강 유형을 선택하여 신청 절차를 진행해 보세요.</p>
 
-      <form id="register-form">
-        <label for="name">이름</label>
-        <input type="text" id="name" name="name" placeholder="이름을 입력하세요">
+      <!-- 시작 화면 -->
+      <div id="registerStart">
+        <p>신청자 정보와 수강 조건을 입력한 뒤 최종 내용을 확인할 수 있습니다.</p>
+        <button id="openRegisterDialog" type="button">
+          수강 신청 시작하기
+        </button>
+      </div>
 
-        <label for="registerClass">신청 클래스</label>
-        <select id="registerClass" name="registerClass" required>
-          <option value="">클래스를 선택하세요</option>
-          <option value="Dance-eter">Dance-eter</option>
-          <option value="Easy Shuffle">Easy Shuffle</option>
-          <option value="Dance Starter">Dance Starter</option>
-          <option value="Kids K-POP">Kids K-POP</option>
-          <option value="K-POP Dance">K-POP Dance</option>
-          <option value="K-POP Challenge">K-POP Challenge</option>
-        </select>
+      <!-- 신청 안내 팝업 -->
+      <dialog id="registerDialog" aria-labelledby="registerDialogTitle">
+        <h3 id="registerDialogTitle">수강 신청 안내</h3>
+        <p>
+          신청자 정보와 원하는 수강 조건을 입력하고,
+          마지막 단계에서 신청 내용을 확인합니다.
+        </p>
+        <p>
+          본 페이지는 수업 과제용 프로토타입이며,
+          실제 수강 신청이 접수되지는 않습니다.
+        </p>
 
-        <button id="registerButton" type="submit">수강 신청하기</button>
+        <div class="register-actions">
+          <button id="closeRegisterDialog" type="button">
+            돌아가기
+          </button>
+          <button id="confirmRegisterStart" type="button">
+            신청 시작하기
+          </button>
+        </div>
+      </dialog>
+
+      <!-- 진행 단계 표시 -->
+      <ol id="registerProgress" class="register-progress" hidden>
+        <li class="is-current" aria-current="step">1. 신청자 정보</li>
+        <li>2. 수강 조건</li>
+        <li>3. 신청 내용 확인</li>
+      </ol>
+
+      <!-- 단계형 수강 신청 폼 -->
+      <form id="register-form" novalidate hidden>
+
+        <!-- 1단계: 신청자 정보 -->
+        <div id="registerStep1" class="register-step">
+          <h3>1. 신청자 정보</h3>
+
+          <label for="name">이름</label>
+          <input type="text" id="name" name="name" autocomplete="name" placeholder="이름을 입력하세요" required>
+          <p id="nameError" class="register-error" aria-live="polite"></p>
+
+          <label for="phone">휴대전화 번호</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="numeric" placeholder="010-1234-5678"
+            required>
+          <p id="phoneError" class="register-error" aria-live="polite"></p>
+
+          <div class="register-actions">
+            <button id="toRegisterStep2" type="button">
+              수강 조건 선택하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 2단계: 수강 조건 선택 -->
+        <div id="registerStep2" class="register-step" hidden>
+          <h3>2. 수강 조건 선택</h3>
+
+          <label for="registerClass">신청 클래스</label>
+          <select id="registerClass" name="registerClass" required>
+            <option value="">클래스를 선택하세요</option>
+            <option value="Dance-eter">Dance-eter</option>
+            <option value="Easy Shuffle">Easy Shuffle</option>
+            <option value="Dance Starter">Dance Starter</option>
+            <option value="Kids K-POP">Kids K-POP</option>
+            <option value="K-POP Dance">K-POP Dance</option>
+            <option value="K-POP Challenge">K-POP Challenge</option>
+          </select>
+
+          <label for="registerPlan">수강 유형</label>
+          <select id="registerPlan" name="registerPlan" required>
+            <option value="">수강 유형을 선택하세요</option>
+            <option value="주 2회 (월 8회)">주 2회 (월 8회)</option>
+            <option value="주 4회 (월 16회)">주 4회 (월 16회)</option>
+            <option value="Mix 4회">Mix 4회</option>
+          </select>
+
+          <div id="mixClassField" hidden>
+            <label for="mixClass">함께 수강할 클래스</label>
+            <select id="mixClass" name="mixClass">
+              <option value="">두 번째 클래스를 선택하세요</option>
+              <option value="Dance-eter">Dance-eter</option>
+              <option value="Easy Shuffle">Easy Shuffle</option>
+              <option value="Dance Starter">Dance Starter</option>
+              <option value="Kids K-POP">Kids K-POP</option>
+              <option value="K-POP Dance">K-POP Dance</option>
+              <option value="K-POP Challenge">K-POP Challenge</option>
+            </select>
+            <p>Mix 4회는 서로 다른 두 클래스를 선택합니다.</p>
+          </div>
+
+          <p id="classError" class="register-error" aria-live="polite"></p>
+
+          <div class="register-actions">
+            <button id="backToRegisterStep1" type="button">
+              이전
+            </button>
+            <button id="toRegisterStep3" type="button">
+              신청 내용 확인하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 3단계: 신청 내용 확인 -->
+        <div id="registerStep3" class="register-step" hidden>
+          <h3>3. 신청 내용 확인</h3>
+          <p>입력한 신청 정보를 확인해주세요.</p>
+
+          <dl class="register-summary">
+            <dt>이름</dt>
+            <dd id="summaryName"></dd>
+
+            <dt>휴대전화 번호</dt>
+            <dd id="summaryPhone"></dd>
+
+            <dt>신청 클래스</dt>
+            <dd id="summaryClass"></dd>
+
+            <dt>수강 유형</dt>
+            <dd id="summaryPlan"></dd>
+          </dl>
+
+          <div class="register-actions">
+            <button id="backToRegisterStep2" type="button">
+              이전
+            </button>
+            <button id="registerButton" type="submit">
+              신청 완료하기
+            </button>
+          </div>
+        </div>
       </form>
 
-      <p id="registerMessage" aria-live="polite">
-        이름을 입력한 뒤 수강 신청해주세요.
-      </p>
+      <!-- 신청 절차 완료 -->
+      <div id="registerComplete" class="register-step" hidden>
+        <h3>신청 절차 완료</h3>
+        <p id="registerMessage" aria-live="polite">
+          신청 내용 확인이 완료되었습니다.
+        </p>
+        <p>실제 수강 신청 접수는 진행되지 않은 프로토타입입니다.</p>
+
+        <button id="restartRegister" type="button">
+          다시 신청하기
+        </button>
+      </div>
 
       <p>카카오톡 채널을 통해서도 수강 문의 및 신청이 가능합니다.</p>
-
       <img src="./assets/images/kakao-channel-qr.jpg" alt="초이스 댄스 스튜디오 카카오톡 채널 QR코드">
     </section>
 
