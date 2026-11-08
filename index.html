@@ -61,25 +61,19 @@
           Easy Shuffle
         </button>
 
-        <button id="tab-starter" class="tab" type="button" role="tab" aria-selected="false"
-          aria-controls="feature-starter" data-target="#feature-starter">
-          Dance Starter
-        </button>
 
         <button id="tab-kids" class="tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kids"
           data-target="#feature-kids">
           Kids K-POP
         </button>
 
+
         <button id="tab-kpop" class="tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kpop"
           data-target="#feature-kpop">
           K-POP Dance
         </button>
 
-        <button id="tab-challenge" class="tab" type="button" role="tab" aria-selected="false"
-          aria-controls="feature-challenge" data-target="#feature-challenge">
-          K-POP Challenge
-        </button>
+
       </div>
 
       <div id="feature-danceeter" class="panel is-active" role="tabpanel" aria-labelledby="tab-danceeter">
@@ -102,15 +96,6 @@
         </ul>
       </div>
 
-      <div id="feature-starter" class="panel" role="tabpanel" aria-labelledby="tab-starter" hidden>
-
-        <ul class="feature-list">
-          <li class="feature-card">
-            <h3>Dance Starter</h3>
-            <p>춤의 기본 동작과 리듬감을 차근차근 익히는 댄스 기본기 클래스입니다.</p>
-          </li>
-        </ul>
-      </div>
 
       <div id="feature-kids" class="panel" role="tabpanel" aria-labelledby="tab-kids" hidden>
 
@@ -122,6 +107,7 @@
         </ul>
       </div>
 
+
       <div id="feature-kpop" class="panel" role="tabpanel" aria-labelledby="tab-kpop" hidden>
 
         <ul class="feature-list">
@@ -132,15 +118,7 @@
         </ul>
       </div>
 
-      <div id="feature-challenge" class="panel" role="tabpanel" aria-labelledby="tab-challenge" hidden>
 
-        <ul class="feature-list">
-          <li class="feature-card">
-            <h3>K-POP Challenge</h3>
-            <p>한 단계 높은 난이도의 K-POP 안무에 도전하는 클래스입니다.</p>
-          </li>
-        </ul>
-      </div>
     </section>
 
     <section id="steps">
@@ -202,12 +180,14 @@
           <h3>1. 신청자 정보</h3>
 
           <label for="name">이름</label>
-          <input type="text" id="name" name="name" autocomplete="name" placeholder="이름을 입력하세요" required>
+          <input type="text" id="name" name="name" minlength="2" maxlength="30" autocomplete="name" placeholder="이름을 입력하세요" aria-describedby="nameHelp nameError" required>
+          <p id="nameHelp" aria-live="polite">이름은 2자 이상 입력해주세요.</p>
           <p id="nameError" class="register-error" aria-live="polite"></p>
 
           <label for="phone">휴대전화 번호</label>
           <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="numeric" placeholder="010-1234-5678"
-            required>
+            aria-describedby="phoneHelp phoneError" required>
+          <p id="phoneHelp" aria-live="polite">010부터 입력해주세요.</p>
           <p id="phoneError" class="register-error" aria-live="polite"></p>
 
           <div class="register-actions">
@@ -221,40 +201,45 @@
         <div id="registerStep2" class="register-step" hidden>
           <h3>2. 수강 조건 선택</h3>
 
-          <label for="registerClass">신청 클래스</label>
-          <select id="registerClass" name="registerClass" required>
-            <option value="">클래스를 선택하세요</option>
-            <option value="Dance-eter">Dance-eter</option>
-            <option value="Easy Shuffle">Easy Shuffle</option>
-            <option value="Dance Starter">Dance Starter</option>
-            <option value="Kids K-POP">Kids K-POP</option>
-            <option value="K-POP Dance">K-POP Dance</option>
-            <option value="K-POP Challenge">K-POP Challenge</option>
-          </select>
-
           <label for="registerPlan">수강 유형</label>
-          <select id="registerPlan" name="registerPlan" required>
+          <select id="registerPlan" name="registerPlan" aria-describedby="planHelp planError" required>
             <option value="">수강 유형을 선택하세요</option>
             <option value="주 2회 (월 8회)">주 2회 (월 8회)</option>
             <option value="주 4회 (월 16회)">주 4회 (월 16회)</option>
             <option value="Mix 4회">Mix 4회</option>
           </select>
 
+          <p id="planError" class="register-error" aria-live="polite"></p>
+          <p id="planHelp">수강 유형을 선택해주세요. Mix 4회는 서로 다른 두 클래스를 함께 수강하는 유형입니다.</p>
+
+          <label for="registerClass">신청 클래스</label>
+          <select id="registerClass" name="registerClass" aria-describedby="classHelp classError" required>
+            <option value="">클래스를 선택하세요</option>
+            <option value="Dance-eter">Dance-eter</option>
+            <option value="Easy Shuffle">Easy Shuffle</option>
+            <option value="Kids K-POP (오후 4시)">Kids K-POP (오후 4시)</option>
+            <option value="Kids K-POP (오후 5시)">Kids K-POP (오후 5시)</option>
+            <option value="K-POP Dance (오후 7시)">K-POP Dance (오후 7시)</option>
+            <option value="K-POP Dance (오후 8시)">K-POP Dance (오후 8시)</option>
+          </select>
+
+          <p id="classError" class="register-error" aria-live="polite"></p>
+          <p id="classHelp">수강할 클래스를 하나 선택해주세요. 필수 선택 항목입니다.</p>
+
           <div id="mixClassField" hidden>
             <label for="mixClass">함께 수강할 클래스</label>
-            <select id="mixClass" name="mixClass">
+            <select id="mixClass" name="mixClass" aria-describedby="mixHelp mixError" disabled>
               <option value="">두 번째 클래스를 선택하세요</option>
               <option value="Dance-eter">Dance-eter</option>
               <option value="Easy Shuffle">Easy Shuffle</option>
-              <option value="Dance Starter">Dance Starter</option>
-              <option value="Kids K-POP">Kids K-POP</option>
-              <option value="K-POP Dance">K-POP Dance</option>
-              <option value="K-POP Challenge">K-POP Challenge</option>
+              <option value="Kids K-POP (오후 4시)">Kids K-POP (오후 4시)</option>
+              <option value="Kids K-POP (오후 5시)">Kids K-POP (오후 5시)</option>
+              <option value="K-POP Dance (오후 7시)">K-POP Dance (오후 7시)</option>
+              <option value="K-POP Dance (오후 8시)">K-POP Dance (오후 8시)</option>
             </select>
-            <p>Mix 4회는 서로 다른 두 클래스를 선택합니다.</p>
+            <p id="mixError" class="register-error" aria-live="polite"></p>
+            <p id="mixHelp">Mix 4회는 첫 번째 클래스와 다른 두 번째 클래스를 반드시 선택해주세요.</p>
           </div>
-
-          <p id="classError" class="register-error" aria-live="polite"></p>
 
           <div class="register-actions">
             <button id="backToRegisterStep1" type="button">
@@ -285,6 +270,8 @@
             <dd id="summaryPlan"></dd>
           </dl>
 
+          <p id="submitStatus" role="status" aria-live="polite" tabindex="-1"></p>
+
           <div class="register-actions">
             <button id="backToRegisterStep2" type="button">
               이전
@@ -299,7 +286,7 @@
       <!-- 신청 절차 완료 -->
       <div id="registerComplete" class="register-step" hidden>
         <h3>신청 절차 완료</h3>
-        <p id="registerMessage" aria-live="polite">
+        <p id="registerMessage" tabindex="-1" aria-live="polite">
           신청 내용 확인이 완료되었습니다.
         </p>
         <p>실제 수강 신청 접수는 진행되지 않은 프로토타입입니다.</p>

@@ -1,4 +1,4 @@
-/* 7·8주차 수강 신청 및 내역 관리 프로토타입 */
+/* 7·8·9주차 수강 신청 및 내역 관리 프로토타입 */
 
 // 신청 정보 저장
 const formData = {
@@ -37,9 +37,16 @@ const mixClassField = document.querySelector("#mixClassField");
 const mixClass = document.querySelector("#mixClass");
 
 // 오류 메시지
+const nameHelp = document.querySelector("#nameHelp");
+const phoneHelp = document.querySelector("#phoneHelp");
 const nameError = document.querySelector("#nameError");
 const phoneError = document.querySelector("#phoneError");
 const classError = document.querySelector("#classError");
+const planError = document.querySelector("#planError");
+const mixError = document.querySelector("#mixError");
+const submitStatus = document.querySelector("#submitStatus");
+const registerButton = document.querySelector("#registerButton");
+let isSubmitting = false;
 
 // 신청 내용 확인 요소
 const summaryName = document.querySelector("#summaryName");
@@ -128,15 +135,27 @@ confirmRegisterStart.addEventListener("click", function () {
   nameInput.focus();
 });
 
-// 휴대전화 번호 입력 시 자동 형식 적용
+// 잘못 입력한 항목에만 오류를 표시하고, 조건 충족 시 해제한다.
+function updateApplicantFeedback(changedInput = null) {
+  const length = nameInput.value.trim().length;
+  const nameValid = length >= 2 && length <= 30;
+  const phoneValid = /^010-\d{4}-\d{4}$/.test(phoneInput.value);
+  nameHelp.textContent = nameValid ? "이름 입력 조건을 충족했습니다." : "이름은 2자 이상 입력해주세요.";
+  phoneHelp.textContent = phoneValid ? "전화번호 입력 조건을 충족했습니다." : "010부터 입력해주세요.";
+  [[nameInput, nameError, nameValid, "이름을 2~30자로 입력해주세요."],
+   [phoneInput, phoneError, phoneValid, "010으로 시작하는 휴대전화 번호 11자리를 입력해주세요."]].forEach(function (field) {
+    if (field[2]) clearFieldError(field[0], field[1]);
+    else if (field[0] === changedInput) setFieldError(field[0], field[1], field[3]);
+  });
+}
 phoneInput.addEventListener("input", function () {
   phoneInput.value = formatPhoneNumber(phoneInput.value);
-  clearFieldError(phoneInput, phoneError);
+  updateApplicantFeedback(phoneInput);
 });
-
-nameInput.addEventListener("input", function () {
-  clearFieldError(nameInput, nameError);
+nameInput.addEventListener("input", function (event) {
+  if (!event.isComposing) updateApplicantFeedback(nameInput);
 });
+nameInput.addEventListener("compositionend", function () { updateApplicantFeedback(nameInput); });
 
 // 1단계: 신청자 정보 검사
 function validateApplicant() {
@@ -150,8 +169,8 @@ function validateApplicant() {
   let isValid = true;
   let firstInvalidInput = null;
 
-  if (name === "") {
-    setFieldError(nameInput, nameError, "이름을 입력해주세요.");
+  if (name.length < 2 || name.length > 30) {
+    setFieldError(nameInput, nameError, "이름을 2~30자로 입력해주세요.");
     isValid = false;
     firstInvalidInput = nameInput;
   }
@@ -183,94 +202,50 @@ function validateApplicant() {
 toRegisterStep2.addEventListener("click", function () {
   if (!validateApplicant()) return;
   showStep(1);
-  registerClass.focus();
+  registerPlan.focus();
 });
 
-// Mix 4회 선택 시 추가 클래스 표시
-registerPlan.addEventListener("change", function () {
+// Mix 선택에 따라 표시·활성화·필수 여부를 함께 변경한다.
+function syncMixField() {
   const isMix = registerPlan.value === "Mix 4회";
   mixClassField.hidden = !isMix;
-
+  mixClass.disabled = !isMix;
+  mixClass.required = isMix;
   if (!isMix) {
     mixClass.value = "";
+    clearFieldError(mixClass, mixError);
   }
+}
+function checkClassFields(showAllErrors = false) {
+  const isMix = registerPlan.value === "Mix 4회";
+  const fields = [
+    [registerPlan, planError, registerPlan.value ? "" : "수강 유형을 선택해주세요."],
+    [registerClass, classError, registerClass.value ? "" : "신청할 클래스를 선택해주세요."],
+    [mixClass, mixError, !isMix ? "" : !mixClass.value ? "함께 수강할 두 번째 클래스를 선택해주세요." :
+      mixClass.value === registerClass.value ? "Mix 4회는 서로 다른 두 클래스를 선택해주세요." : ""]
+  ];
+  fields.forEach(function (field) {
+    if (!field[2]) clearFieldError(field[0], field[1]);
+    else if (showAllErrors || field[0].value || field[0].getAttribute("aria-invalid") === "true") {
+      setFieldError(field[0], field[1], field[2]);
+    }
+  });
+  return fields.find(function (field) { return field[2]; });
+}
+registerPlan.addEventListener("change", function () { syncMixField(); checkClassFields(); });
+registerClass.addEventListener("change", function () { checkClassFields(); });
+mixClass.addEventListener("change", function () { checkClassFields(); });
 
-  clearFieldError(registerPlan, classError);
-  clearFieldError(mixClass, classError);
-  if (registerClass.getAttribute("aria-invalid") === "true") {
-    classError.textContent = "신청할 클래스를 선택해주세요.";
-  }
-});
-
-registerClass.addEventListener("change", function () {
-  clearFieldError(registerClass, classError);
-});
-
-mixClass.addEventListener("change", function () {
-  clearFieldError(mixClass, classError);
-});
-
-// 2단계: 수강 조건 검사
 function validateClassSelection() {
-  const selectedClass = registerClass.value;
-  const selectedPlan = registerPlan.value;
-  const selectedMixClass = mixClass.value;
-
-  clearFieldError(registerClass, classError);
-  clearFieldError(registerPlan, classError);
-  clearFieldError(mixClass, classError);
-
-  if (selectedClass === "") {
-    setFieldError(
-      registerClass,
-      classError,
-      "신청할 클래스를 선택해주세요."
-    );
+  const invalid = checkClassFields(true);
+  if (invalid) {
     showStep(1);
-    registerClass.focus();
+    invalid[0].focus();
     return false;
   }
-
-  if (selectedPlan === "") {
-    setFieldError(
-      registerPlan,
-      classError,
-      "수강 유형을 선택해주세요."
-    );
-    showStep(1);
-    registerPlan.focus();
-    return false;
-  }
-
-  if (selectedPlan === "Mix 4회") {
-    if (selectedMixClass === "") {
-      setFieldError(
-        mixClass,
-        classError,
-        "함께 수강할 두 번째 클래스를 선택해주세요."
-      );
-      showStep(1);
-      mixClass.focus();
-      return false;
-    }
-
-    if (selectedClass === selectedMixClass) {
-      setFieldError(
-        mixClass,
-        classError,
-        "Mix 4회는 서로 다른 두 클래스를 선택해야 합니다."
-      );
-      showStep(1);
-      mixClass.focus();
-      return false;
-    }
-  }
-
-  formData.className = selectedClass;
-  formData.plan = selectedPlan;
-  formData.mixClass =
-    selectedPlan === "Mix 4회" ? selectedMixClass : "";
-
+  formData.className = registerClass.value;
+  formData.plan = registerPlan.value;
+  formData.mixClass = mixClass.disabled ? "" : mixClass.value;
   return true;
 }
 
@@ -298,23 +273,45 @@ backToRegisterStep2.addEventListener("click", function () {
   showStep(1);
 });
 
-// 신청 완료
-registerForm.addEventListener("submit", function (event) {
+// 9주차: 제출 잠금 → 저장 성공·실패 → 재시도. 실패 시 입력과 확인 화면을 유지한다.
+registerForm.addEventListener("submit", async function (event) {
   event.preventDefault();
-
-  if (currentStep !== 2 || registerForm.hidden) return;
+  if (isSubmitting || registerForm.hidden) return;
+  if (currentStep !== 2) {
+    if (currentStep === 0) toRegisterStep2.click();
+    else if (currentStep === 1) toRegisterStep3.click();
+    return;
+  }
   if (!validateApplicant() || !validateClassSelection()) return;
-
-  addRegistration();
-  currentStep = null;
-  registerForm.hidden = true;
-  registerProgress.hidden = true;
-  registerComplete.hidden = false;
-
-  registerMessage.textContent =
-    formData.name + "님의 수강 신청 절차가 완료되었습니다.";
-
-  registerMessage.classList.add("is-success");
+  isSubmitting = true;
+  registerForm.setAttribute("aria-busy", "true");
+  registerButton.disabled = true;
+  backToRegisterStep2.disabled = true;
+  registerButton.textContent = "저장 중…";
+  submitStatus.classList.remove("is-error");
+  submitStatus.textContent = "신청 내용을 브라우저에 저장하고 있습니다.";
+  try {
+    // 서버 없는 프로토타입에서 처리 중 상태를 확인하기 위한 짧은 대기
+    await new Promise(function (resolve) { setTimeout(resolve, 600); });
+    addRegistration();
+    currentStep = null;
+    registerForm.hidden = true;
+    registerProgress.hidden = true;
+    registerComplete.hidden = false;
+    registerMessage.textContent = formData.name + "님의 신청 내역이 이 브라우저에 저장되었습니다.";
+    registerMessage.classList.add("is-success");
+    registerMessage.focus();
+  } catch (error) {
+    submitStatus.classList.add("is-error");
+    submitStatus.textContent = "저장하지 못했습니다. 입력 내용은 유지됩니다. 브라우저 저장 설정과 여유 공간을 확인한 뒤 ‘다시 시도하기’를 눌러주세요.";
+    submitStatus.focus();
+  } finally {
+    isSubmitting = false;
+    registerForm.removeAttribute("aria-busy");
+    registerButton.disabled = false;
+    backToRegisterStep2.disabled = false;
+    registerButton.textContent = registerForm.hidden ? "신청 완료하기" : "다시 시도하기";
+  }
 });
 
 // 다시 신청
@@ -330,10 +327,12 @@ restartRegister.addEventListener("click", function () {
   clearFieldError(nameInput, nameError);
   clearFieldError(phoneInput, phoneError);
   clearFieldError(registerClass, classError);
-  clearFieldError(registerPlan, classError);
-  clearFieldError(mixClass, classError);
+  clearFieldError(registerPlan, planError);
+  clearFieldError(mixClass, mixError);
 
   mixClassField.hidden = true;
+  mixClass.disabled = true;
+  mixClass.required = false;
   summaryName.textContent = "";
   summaryPhone.textContent = "";
   summaryClass.textContent = "";
@@ -341,6 +340,13 @@ restartRegister.addEventListener("click", function () {
   registerMessage.textContent = "";
   registerMessage.classList.remove("is-success");
 
+  submitStatus.textContent = "";
+  submitStatus.classList.remove("is-error");
+  registerButton.textContent = "신청 완료하기";
+  registerButton.disabled = false;
+  backToRegisterStep2.disabled = false;
+  registerForm.removeAttribute("aria-busy");
+  updateApplicantFeedback();
   showStep(0);
   nameInput.focus();
 });
@@ -457,19 +463,29 @@ function loadRegistrations() {
     return records;
   } catch (error) {
     storageAvailable = false;
-    historyNotice.textContent = "저장된 내역을 불러올 수 없습니다. 새 신청은 현재 화면에서만 유지됩니다. 브라우저 저장 설정을 확인한 뒤 새로고침해주세요.";
+    historyNotice.textContent = "저장된 내역을 불러올 수 없습니다. 기존 데이터를 보호하기 위해 새 신청 저장을 중단합니다. 브라우저 저장 설정을 확인한 뒤 다시 시도해주세요.";
     return [];
   }
 }
 
-function saveRegistrations() {
-  try {
-    if (!storageAvailable) return;
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(registrations));
-  } catch (error) {
-    storageAvailable = false;
-    historyNotice.textContent = "브라우저에 내역을 저장하지 못했습니다. 변경 내용은 현재 화면에서만 유지됩니다. 저장 공간과 브라우저 설정을 확인해주세요.";
+// 취소도 최신 저장 목록을 기준으로 처리하고, 저장 성공 후에만 화면에 반영한다.
+function cancelRegistration(id) {
+  storageAvailable = true;
+  const saved = loadRegistrations();
+  if (!storageAvailable) throw new Error("History unavailable");
+  const record = saved.find(function (item) { return item.id === id; });
+  if (!record) throw new Error("Registration not found");
+  if (record.status !== "cancelled") {
+    const next = saved.map(function (item) {
+      return item.id === id ? { ...item, status: "cancelled" } : item;
+    });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+    registrations = next;
+  } else {
+    // 다른 탭에서 이미 취소했다면 최신 상태만 반영한다.
+    registrations = saved;
   }
+  historyNotice.textContent = "";
 }
 
 function registrationClasses(record) {
@@ -477,13 +493,21 @@ function registrationClasses(record) {
 }
 
 function addRegistration() {
-  registrations.unshift({
+  // 매번 읽기를 재시도한다. 읽기 실패·손상 데이터가 있으면 덮어쓰지 않는다.
+  storageAvailable = true;
+  const saved = loadRegistrations();
+  if (!storageAvailable) throw new Error("History unavailable");
+  const record = {
     ...formData,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
     status: "active"
-  });
-  saveRegistrations();
+  };
+  const next = [record, ...saved];
+  // 쓰기가 성공한 뒤에만 메모리와 목록을 갱신해 실패·재시도 중복을 방지한다.
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+  registrations = next;
+  historyNotice.textContent = "";
   renderRegistrations();
 }
 
@@ -560,13 +584,17 @@ document.querySelector("#keepRegistration").addEventListener("click", function (
 document.querySelector("#confirmCancellation").addEventListener("click", function () {
   const record = registrations.find(function (item) { return item.id === selectedRegistrationId; });
   if (cancelConfirm.hidden || !record || record.status !== "active") return;
-  record.status = "cancelled";
-  saveRegistrations();
-  renderRegistrations();
-  renderRegistrationDetail();
-  cancelFeedback.textContent = "신청을 취소했습니다. 취소된 내역은 목록에서 다시 확인할 수 있습니다." +
-    (storageAvailable ? "" : " 브라우저 저장이 불가능하여 취소 상태는 현재 화면에서만 유지됩니다.");
-  document.querySelector("#closeHistoryDetail").focus();
+  try {
+    cancelRegistration(selectedRegistrationId);
+    renderRegistrations();
+    renderRegistrationDetail();
+    cancelFeedback.textContent = "신청을 취소했습니다. 취소된 내역은 목록에서 다시 확인할 수 있습니다.";
+    document.querySelector("#closeHistoryDetail").focus();
+  } catch (error) {
+    // 기존 상태와 취소 확인 화면을 유지해 같은 버튼으로 다시 시도할 수 있다.
+    cancelFeedback.textContent = "취소를 저장하지 못했습니다. 신청 상태는 변경하지 않았습니다. 브라우저 저장 설정과 신청 내역을 확인한 뒤 ‘신청 취소하기’를 다시 눌러주세요.";
+    document.querySelector("#confirmCancellation").focus();
+  }
 });
 
 document.querySelector("#closeHistoryDetail").addEventListener("click", function () {

@@ -598,3 +598,41 @@ button:active {
   #historyDetail, .history-card { padding: 16px; }
   .history-link { display: block; }
 }
+
+/* 이름·휴대전화 오류 안내를 기존 위치보다 5px 위로 이동 */
+#nameError,
+#phoneError {
+    position: relative;
+    top: -5px;
+}
+
+/* 9주차: 입력 조건과 제출 상태 */
+.register-feedback {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #444;
+}
+#submitStatus.is-error { color: #b42318; }
+#register-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* 폼 내부 안내문은 가까이 배치하고 항목 사이는 구분할 여백을 둔다. */
+#register-form .register-step h3 { margin-bottom: 16px; }
+#register-form .register-step label { margin-top: 18px; margin-bottom: 6px; }
+#register-form p[id$="Help"] {
+    margin: 8px 0 4px;
+    line-height: 1.5;
+}
+#register-form .register-feedback {
+    margin: 4px 0;
+    line-height: 1.5;
+}
+#register-form .register-error {
+    min-height: 0;
+    margin: 6px 0 0;
+    line-height: 1.5;
+}
+#register-form .register-error:empty { display: none; }
+#register-form .register-actions { margin-top: 20px; }
