@@ -1,4 +1,70 @@
-/* 7·8·9주차 수강 신청 및 내역 관리 프로토타입 */
+/* 7·8·9·10주차 수강 신청 및 내역 관리 프로토타입 */
+
+// 10주차: 주소에 맞는 메뉴 표시와 모바일 메뉴 상태 관리
+const mainNav = document.querySelector("#mainNav");
+const navLinks = mainNav.querySelectorAll("a");
+const menuToggle = document.querySelector("#menuToggle");
+const mobileMenu = window.matchMedia("(max-width: 600px)");
+
+function setMenuOpen(open) {
+  const expanded = mobileMenu.matches && open;
+  mainNav.hidden = mobileMenu.matches && !expanded;
+  menuToggle.setAttribute("aria-expanded", String(expanded));
+  menuToggle.textContent = expanded ? "메뉴 닫기" : "메뉴 열기";
+}
+function syncMenuLayout() {
+  // 화면 폭이 바뀌면 모바일은 접고, PC에서는 항상 메뉴를 표시한다.
+  // 숨겨지는 메뉴·버튼에 초점이 남지 않게 먼저 옮긴다.
+  const focusInNav = mainNav.contains(document.activeElement);
+  const focusOnToggle = document.activeElement === menuToggle;
+  if (mobileMenu.matches && focusInNav) {
+    menuToggle.hidden = false;
+    menuToggle.focus();
+  } else if (!mobileMenu.matches && focusOnToggle) {
+    mainNav.hidden = false;
+    navLinks[0].focus();
+  }
+  menuToggle.hidden = !mobileMenu.matches;
+  setMenuOpen(false);
+}
+function updateCurrentNav() {
+  const hash = window.location.hash || "#about";
+  navLinks.forEach(function (link) {
+    const current = link.getAttribute("href") === hash;
+    link.classList.toggle("is-current", current);
+    if (current) link.setAttribute("aria-current", "location");
+    else link.removeAttribute("aria-current");
+  });
+}
+function focusDestination(hash) {
+  const section = document.getElementById(hash.slice(1));
+  if (!section) return;
+  const heading = section.querySelector("h2");
+  if (heading) {
+    heading.setAttribute("tabindex", "-1");
+    heading.focus({ preventScroll: true });
+  }
+}
+menuToggle.addEventListener("click", function () {
+  setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
+});
+mainNav.addEventListener("keydown", function (event) {
+  if (event.key === "Escape" && mobileMenu.matches && !mainNav.hidden) {
+    setMenuOpen(false);
+    menuToggle.focus();
+  }
+});
+navLinks.forEach(function (link) {
+  link.addEventListener("click", function () {
+    setMenuOpen(false);
+    focusDestination(link.getAttribute("href"));
+  });
+});
+window.addEventListener("hashchange", updateCurrentNav);
+window.addEventListener("pageshow", function () { syncMenuLayout(); updateCurrentNav(); });
+mobileMenu.addEventListener("change", syncMenuLayout);
+syncMenuLayout();
+updateCurrentNav();
 
 // 신청 정보 저장
 const formData = {
@@ -446,6 +512,31 @@ let selectedRegistrationId = null;
 let detailOpener = null;
 let storageAvailable = true;
 let registrations = loadRegistrations();
+const historyFilters = document.querySelectorAll(".history-filter");
+const historyResults = document.querySelector("#historyResults");
+const historyEmptyTitle = document.querySelector("#historyEmptyTitle");
+const historyEmptyDescription = document.querySelector("#historyEmptyDescription");
+const historyShowAll = document.querySelector("#historyShowAll");
+const historyStart = document.querySelector("#historyStart");
+let currentHistoryFilter = "all";
+const filterLabels = { all: "전체", active: "신청 완료", cancelled: "취소됨" };
+
+function selectHistoryFilter(filter) {
+  currentHistoryFilter = filter;
+  historyFilters.forEach(function (button) {
+    const selected = button.dataset.filter === filter;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  renderRegistrations();
+}
+historyFilters.forEach(function (button) {
+  button.addEventListener("click", function () { selectHistoryFilter(button.dataset.filter); });
+});
+historyShowAll.addEventListener("click", function () {
+  selectHistoryFilter("all");
+  historyFilters[0].focus();
+});
 
 function loadRegistrations() {
   try {
@@ -513,8 +604,20 @@ function addRegistration() {
 
 function renderRegistrations() {
   historyList.replaceChildren();
-  historyEmpty.hidden = registrations.length > 0;
-  registrations.forEach(function (record) {
+  const visible = registrations.filter(function (record) {
+    return currentHistoryFilter === "all" || record.status === currentHistoryFilter;
+  });
+  historyResults.textContent = filterLabels[currentHistoryFilter] + " " + visible.length + "건";
+  historyList.hidden = visible.length === 0;
+  historyEmpty.hidden = visible.length > 0;
+  const noHistory = registrations.length === 0;
+  historyEmptyTitle.textContent = noHistory ? "아직 신청 내역이 없습니다." :
+    (currentHistoryFilter === "cancelled" ? "취소된 신청 내역이 없습니다." : "신청 완료된 내역이 없습니다.");
+  historyEmptyDescription.textContent = noHistory ? "원하는 클래스에 신청하면 이곳에서 내역을 확인하고 취소할 수 있습니다." :
+    "다른 상태를 선택하거나 전체 내역을 확인해주세요.";
+  historyStart.hidden = !noHistory;
+  historyShowAll.hidden = noHistory || visible.length > 0;
+  visible.forEach(function (record) {
     const item = document.createElement("li");
     item.className = "history-card";
     const title = document.createElement("h3");
@@ -612,6 +715,8 @@ document.querySelector("#historyStart").addEventListener("click", function () {
     if (!registerComplete.hidden) restartRegister.click();
     else openRegisterDialog.click();
   }
+  window.location.hash = "subscribe";
+  updateCurrentNav();
   document.querySelector("#subscribe").scrollIntoView({ block: "start" });
   if (!registerForm.hidden) {
     registerSteps[currentStep].querySelector("input, select, button").focus();

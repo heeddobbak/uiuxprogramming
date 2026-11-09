@@ -636,3 +636,44 @@ button:active {
 }
 #register-form .register-error:empty { display: none; }
 #register-form .register-actions { margin-top: 20px; }
+
+/* 10주차 네비게이션 UI와 정보 탐색 */
+#mainNav[hidden], #menuToggle[hidden] { display: none !important; }
+#mainNav { display: block; }
+#mainNav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#mainNav a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #555763;
+    text-decoration: none;
+}
+#mainNav a:hover { background: #f3f3f8; color: #3c3c9d; }
+#mainNav a.is-current {
+    color: #3c3c9d;
+    background: #eeeeff;
+    box-shadow: inset 0 -3px #3c3c9d;
+}
+#mainNav a:focus-visible, #historyTitle:focus-visible {
+    outline: 3px solid #3c3c9d;
+    outline-offset: 3px;
+}
+.history-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 12px; }
+.history-filter { background: #f3f3f8; color: #292a31; border: 1px solid #dedef6; }
+.history-filter:hover { background: #e2e2f5; }
+.history-filter.is-active { background: #3c3c9d; color: #fff; border-color: #3c3c9d; }
+#historyResults { margin: 8px 0 16px; font-weight: 700; }
+@media (max-width: 600px) {
+    #menuToggle { margin-top: 12px; min-height: 44px; }
+    #mainNav { margin-top: 12px; }
+    #mainNav ul { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    #mainNav a { min-height: 44px; }
+    .history-filters button { width: auto; flex: 1 1 90px; }
+}

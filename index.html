@@ -29,12 +29,15 @@
     <h1>초이스 댄스 스튜디오</h1>
     <p>춤을 좋아하는 모든 분들이 즐겁게 춤을 배울 수 있는 공간입니다.</p>
 
-    <nav aria-label="주요 메뉴">
-      <a href="#about">스튜디오 소개</a>
-      <a href="#features">클래스 소개</a>
-      <a href="#steps">수강 방법</a>
-      <a href="#subscribe">수강 신청</a>
-      <a href="#registration-history">내 신청 내역</a>
+    <button id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false" hidden>메뉴 열기</button>
+    <nav id="mainNav" aria-label="주요 메뉴">
+      <ul>
+        <li><a href="#about">스튜디오 소개</a></li>
+        <li><a href="#features">클래스 소개</a></li>
+        <li><a href="#steps">수강 방법</a></li>
+        <li><a href="#subscribe">수강 신청</a></li>
+        <li><a href="#registration-history">내 신청 내역</a></li>
+      </ul>
     </nav>
   </header>
 
@@ -304,11 +307,18 @@
     <section id="registration-history" aria-labelledby="historyTitle">
       <h2 id="historyTitle" tabindex="-1">내 신청 내역</h2>
       <p>이 브라우저에 저장되는 과제용 신청 내역입니다. 실제 수강 신청 접수는 진행되지 않습니다.</p>
+      <div class="history-filters" role="group" aria-label="신청 내역 상태 필터">
+        <button type="button" class="history-filter is-active" data-filter="all" aria-pressed="true">전체</button>
+        <button type="button" class="history-filter" data-filter="active" aria-pressed="false">신청 완료</button>
+        <button type="button" class="history-filter" data-filter="cancelled" aria-pressed="false">취소됨</button>
+      </div>
+      <p id="historyResults" role="status" aria-live="polite"></p>
       <p id="historyNotice" role="status" aria-live="polite"></p>
       <div id="historyEmpty" class="history-card">
-        <h3>아직 신청 내역이 없습니다.</h3>
-        <p>원하는 클래스에 신청하면 이곳에서 내역을 확인하고 취소할 수 있습니다.</p>
+        <h3 id="historyEmptyTitle">아직 신청 내역이 없습니다.</h3>
+        <p id="historyEmptyDescription">원하는 클래스에 신청하면 이곳에서 내역을 확인하고 취소할 수 있습니다.</p>
         <button id="historyStart" type="button">수강 신청 시작하기</button>
+        <button id="historyShowAll" type="button" hidden>전체 내역 보기</button>
       </div>
       <ul id="historyList" class="history-list" aria-label="저장된 신청 목록"></ul>
       <dialog id="historyDetail" aria-labelledby="historyDetailTitle">
