@@ -1,4 +1,4 @@
-/* 7·8·9·10주차 수강 신청 및 내역 관리 프로토타입 */
+/* 7·8·9·10·11주차 수강 신청 및 내역 관리 프로토타입 */
 
 // 10주차: 주소에 맞는 메뉴 표시와 모바일 메뉴 상태 관리
 const mainNav = document.querySelector("#mainNav");
@@ -28,13 +28,18 @@ function syncMenuLayout() {
   setMenuOpen(false);
 }
 function updateCurrentNav() {
+  let pageName = "홈";
   const hash = window.location.hash || "#about";
   navLinks.forEach(function (link) {
     const current = link.getAttribute("href") === hash;
     link.classList.toggle("is-current", current);
-    if (current) link.setAttribute("aria-current", "location");
+    if (current) {
+      link.setAttribute("aria-current", "location");
+      pageName = link.textContent.trim();
+    }
     else link.removeAttribute("aria-current");
   });
+  document.title = pageName + " | 초이스 댄스 스튜디오";
 }
 function focusDestination(hash) {
   const section = document.getElementById(hash.slice(1));
@@ -48,16 +53,25 @@ function focusDestination(hash) {
 menuToggle.addEventListener("click", function () {
   setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
 });
-mainNav.addEventListener("keydown", function (event) {
+function closeMenuOnEscape(event) {
   if (event.key === "Escape" && mobileMenu.matches && !mainNav.hidden) {
     setMenuOpen(false);
     menuToggle.focus();
   }
-});
+}
+mainNav.addEventListener("keydown", closeMenuOnEscape);
+menuToggle.addEventListener("keydown", closeMenuOnEscape);
 navLinks.forEach(function (link) {
-  link.addEventListener("click", function () {
+  link.addEventListener("click", function (event) {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     setMenuOpen(false);
-    focusDestination(link.getAttribute("href"));
+    // 기본 앵커 이동이 끝난 뒤 초점을 이동해 숨겨진 링크에 초점이 남지 않게 한다.
+    requestAnimationFrame(function () {
+      // 사용자가 이미 다음 컨트롤로 이동했다면 그 초점을 빼앗지 않는다.
+      if (document.activeElement === link || document.activeElement === document.body) {
+        focusDestination(link.getAttribute("href"));
+      }
+    });
   });
 });
 window.addEventListener("hashchange", updateCurrentNav);
@@ -72,7 +86,9 @@ const formData = {
   phone: "",
   className: "",
   plan: "",
-  mixClass: ""
+  mixClass: "",
+  days: "",
+  mixDays: ""
 };
 
 // 화면 요소
@@ -101,6 +117,23 @@ const registerClass = document.querySelector("#registerClass");
 const registerPlan = document.querySelector("#registerPlan");
 const mixClassField = document.querySelector("#mixClassField");
 const mixClass = document.querySelector("#mixClass");
+const classDays = document.querySelector("#classDays");
+const mixDays = document.querySelector("#mixDays");
+const classDaysError = document.querySelector("#classDaysError");
+const mixDaysError = document.querySelector("#mixDaysError");
+const classSchedule = document.querySelector("#classSchedule");
+const mixScheduleStatus = document.querySelector("#mixScheduleStatus");
+const mixAlternatives = document.querySelector("#mixAlternatives");
+const mixAlternativeList = document.querySelector("#mixAlternativeList");
+// 시작 시간과 수업 길이는 분 단위이며 모든 수강 요일에서 같다.
+const classTimetable = {
+  "Dance-eter": { start: 600, duration: 50 },
+  "Easy Shuffle": { start: 660, duration: 50 },
+  "Kids K-POP (오후 4시)": { start: 960, duration: 40 },
+  "Kids K-POP (오후 5시)": { start: 1020, duration: 50 },
+  "K-POP Dance (오후 7시)": { start: 1140, duration: 50 },
+  "K-POP Dance (오후 8시)": { start: 1200, duration: 50 }
+};
 
 // 오류 메시지
 const nameHelp = document.querySelector("#nameHelp");
@@ -152,6 +185,9 @@ function showStep(index) {
       item.removeAttribute("aria-current");
     }
   });
+  const heading = registerSteps[index].querySelector("h3");
+  heading.setAttribute("tabindex", "-1");
+  heading.focus();
 }
 
 // 오류 표시 및 해제
@@ -271,24 +307,102 @@ toRegisterStep2.addEventListener("click", function () {
   registerPlan.focus();
 });
 
+// 11주차: 요일이 겹치고 시간 구간이 겹치는 경우만 충돌한다.
+function timeLabel(minutes) {
+  return String(Math.floor(minutes / 60)).padStart(2, "0") + ":" + String(minutes % 60).padStart(2, "0");
+}
+function scheduleLabel(className, days) {
+  const slot = classTimetable[className];
+  if (!slot) return "";
+  return (days ? days + " " : "") + timeLabel(slot.start) + "~" + timeLabel(slot.start + slot.duration);
+}
+function schedulesOverlap(firstClass, firstDays, secondClass, secondDays) {
+  const first = classTimetable[firstClass];
+  const second = classTimetable[secondClass];
+  if (!first || !second || !firstDays || !secondDays) return false;
+  const commonDay = firstDays.split("·").some(function (day) { return secondDays.split("·").includes(day); });
+  return commonDay && first.start < second.start + second.duration && second.start < first.start + first.duration;
+}
+function updateScheduleFeedback() {
+  const isMix = registerPlan.value === "Mix 4회";
+  classSchedule.hidden = !isMix;
+  classSchedule.textContent = !isMix ? "" : registerClass.value ? "첫 번째 수업: " + scheduleLabel(registerClass.value, classDays.value) : "클래스를 선택하면 수업 시간을 안내합니다.";
+  mixAlternativeList.replaceChildren();
+  mixAlternatives.hidden = true;
+  mixScheduleStatus.textContent = "";
+  if (!isMix) return;
+  const same = registerClass.value && mixClass.value === registerClass.value;
+  const overlap = schedulesOverlap(registerClass.value, classDays.value, mixClass.value, mixDays.value);
+  if (same || overlap) {
+    mixScheduleStatus.textContent = overlap ? "시간 겹침: " + scheduleLabel(registerClass.value, classDays.value) + " / " + scheduleLabel(mixClass.value, mixDays.value) + (same ? ". 같은 클래스는 두 번 선택할 수 없습니다. 다른 클래스를 선택해주세요." : ". 다른 클래스 또는 요일을 선택해주세요.") : "같은 클래스는 두 번 선택할 수 없습니다. 아래에서 다른 클래스를 선택해주세요.";
+    mixAlternatives.hidden = false;
+    Object.keys(classTimetable).forEach(function (name) {
+      ["화·목", "수·금"].forEach(function (days) {
+        if (name === registerClass.value || schedulesOverlap(registerClass.value, classDays.value, name, days)) return;
+        const li = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        const title = document.createElement("span");
+        title.className = "mix-card-title";
+        // 시간은 둘째 줄에 표시하므로 클래스명의 시간 괄호는 중복하지 않는다.
+        title.textContent = name.replace(/ \(오후 \d+시\)$/, "") + ", " + days;
+        const time = document.createElement("span");
+        time.className = "mix-card-time";
+        time.textContent = scheduleLabel(name, "");
+        button.setAttribute("aria-label", name + ", " + days + ", " + time.textContent);
+        button.append(title, time);
+        button.addEventListener("click", function () {
+          mixClass.value = name;
+          mixDays.value = days;
+          updateScheduleFeedback();
+          checkClassFields();
+          mixClass.focus();
+        });
+        li.append(button);
+        mixAlternativeList.append(li);
+      });
+    });
+  } else if (registerClass.value && classDays.value && mixClass.value && mixDays.value) {
+    mixScheduleStatus.textContent = "시간 겹침 없음: " + scheduleLabel(registerClass.value, classDays.value) + " / " + scheduleLabel(mixClass.value, mixDays.value) + ". 함께 수강할 수 있습니다.";
+  } else {
+    mixScheduleStatus.textContent = "두 클래스와 각각의 수강 요일을 선택하면 시간 겹침을 확인합니다.";
+  }
+}
+
 // Mix 선택에 따라 표시·활성화·필수 여부를 함께 변경한다.
 function syncMixField() {
   const isMix = registerPlan.value === "Mix 4회";
   mixClassField.hidden = !isMix;
   mixClass.disabled = !isMix;
   mixClass.required = isMix;
+  mixDays.disabled = !isMix;
+  mixDays.required = isMix;
   if (!isMix) {
     mixClass.value = "";
+    mixDays.value = "";
     clearFieldError(mixClass, mixError);
+    clearFieldError(mixDays, mixDaysError);
   }
+  const fourDays = registerPlan.value === "주 4회 (월 16회)";
+  const fourDayOption = classDays.querySelector('option[value="화·수·목·금"]');
+  fourDayOption.disabled = !fourDays;
+  fourDayOption.hidden = !fourDays;
+  classDays.disabled = fourDays;
+  classDays.required = !fourDays;
+  if (fourDays) classDays.value = "화·수·목·금";
+  else if (classDays.value === "화·수·목·금") classDays.value = "";
+  updateScheduleFeedback();
 }
 function checkClassFields(showAllErrors = false) {
   const isMix = registerPlan.value === "Mix 4회";
   const fields = [
     [registerPlan, planError, registerPlan.value ? "" : "수강 유형을 선택해주세요."],
     [registerClass, classError, registerClass.value ? "" : "신청할 클래스를 선택해주세요."],
+    [classDays, classDaysError, (registerPlan.value === "주 4회 (월 16회)" ? classDays.value === "화·수·목·금" : ["화·목", "수·금"].includes(classDays.value)) ? "" : "첫 번째 클래스의 수강 요일을 선택해주세요."],
     [mixClass, mixError, !isMix ? "" : !mixClass.value ? "함께 수강할 두 번째 클래스를 선택해주세요." :
-      mixClass.value === registerClass.value ? "Mix 4회는 서로 다른 두 클래스를 선택해주세요." : ""]
+      mixClass.value === registerClass.value ? "Mix 4회는 서로 다른 두 클래스를 선택해주세요." :
+      schedulesOverlap(registerClass.value, classDays.value, mixClass.value, mixDays.value) ? "두 수업의 요일과 시간이 겹칩니다. 아래 변경 가능한 수업을 선택해주세요." : ""],
+    [mixDays, mixDaysError, !isMix || ["화·목", "수·금"].includes(mixDays.value) ? "" : "두 번째 클래스의 수강 요일을 선택해주세요."]
   ];
   fields.forEach(function (field) {
     if (!field[2]) clearFieldError(field[0], field[1]);
@@ -299,8 +413,10 @@ function checkClassFields(showAllErrors = false) {
   return fields.find(function (field) { return field[2]; });
 }
 registerPlan.addEventListener("change", function () { syncMixField(); checkClassFields(); });
-registerClass.addEventListener("change", function () { checkClassFields(); });
-mixClass.addEventListener("change", function () { checkClassFields(); });
+registerClass.addEventListener("change", function () { updateScheduleFeedback(); checkClassFields(); });
+mixClass.addEventListener("change", function () { updateScheduleFeedback(); checkClassFields(); });
+classDays.addEventListener("change", function () { updateScheduleFeedback(); checkClassFields(); });
+mixDays.addEventListener("change", function () { updateScheduleFeedback(); checkClassFields(); });
 
 function validateClassSelection() {
   const invalid = checkClassFields(true);
@@ -312,6 +428,8 @@ function validateClassSelection() {
   formData.className = registerClass.value;
   formData.plan = registerPlan.value;
   formData.mixClass = mixClass.disabled ? "" : mixClass.value;
+  formData.days = classDays.value;
+  formData.mixDays = mixDays.disabled ? "" : mixDays.value;
   return true;
 }
 
@@ -321,9 +439,7 @@ toRegisterStep3.addEventListener("click", function () {
   summaryName.textContent = formData.name;
   summaryPhone.textContent = formData.phone;
 
-  summaryClass.textContent = formData.mixClass
-    ? formData.className + " + " + formData.mixClass
-    : formData.className;
+  summaryClass.textContent = registrationClasses(formData);
 
   summaryPlan.textContent = formData.plan;
 
@@ -389,6 +505,8 @@ restartRegister.addEventListener("click", function () {
   formData.className = "";
   formData.plan = "";
   formData.mixClass = "";
+  formData.days = "";
+  formData.mixDays = "";
 
   clearFieldError(nameInput, nameError);
   clearFieldError(phoneInput, phoneError);
@@ -399,6 +517,9 @@ restartRegister.addEventListener("click", function () {
   mixClassField.hidden = true;
   mixClass.disabled = true;
   mixClass.required = false;
+  clearFieldError(classDays, classDaysError);
+  clearFieldError(mixDays, mixDaysError);
+  syncMixField();
   summaryName.textContent = "";
   summaryPhone.textContent = "";
   summaryClass.textContent = "";
@@ -422,30 +543,42 @@ restartRegister.addEventListener("click", function () {
 const classTabs = document.querySelectorAll(".tab");
 const classPanels = document.querySelectorAll(".panel");
 
-function handleClassTabClick(event) {
-  const selectedTab = event.currentTarget;
-  const targetId = selectedTab.dataset.target;
-
+function activateClassTab(selectedTab) {
   classTabs.forEach(function (tab) {
-    tab.classList.remove("is-active");
-    tab.setAttribute("aria-selected", "false");
+    const selected = tab === selectedTab;
+    tab.classList.toggle("is-active", selected);
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
   });
-
   classPanels.forEach(function (panel) {
-    panel.classList.remove("is-active");
-    panel.hidden = true;
+    const selected = "#" + panel.id === selectedTab.dataset.target;
+    panel.classList.toggle("is-active", selected);
+    panel.hidden = !selected;
   });
-
-  selectedTab.classList.add("is-active");
-  selectedTab.setAttribute("aria-selected", "true");
-
-  const selectedPanel = document.querySelector(targetId);
-  selectedPanel.classList.add("is-active");
-  selectedPanel.hidden = false;
 }
-
-classTabs.forEach(function (tab) {
-  tab.addEventListener("click", handleClassTabClick);
+const tabList = document.querySelector(".tabs");
+const verticalTabs = window.matchMedia("(max-width: 768px)");
+function syncTabOrientation() {
+  tabList.setAttribute("aria-orientation", verticalTabs.matches ? "vertical" : "horizontal");
+}
+verticalTabs.addEventListener("change", syncTabOrientation);
+syncTabOrientation();
+classTabs.forEach(function (tab, index) {
+  tab.tabIndex = tab.getAttribute("aria-selected") === "true" ? 0 : -1;
+  tab.addEventListener("click", function () { activateClassTab(tab); });
+  tab.addEventListener("keydown", function (event) {
+    let next = index;
+    const previousKey = verticalTabs.matches ? "ArrowUp" : "ArrowLeft";
+    const nextKey = verticalTabs.matches ? "ArrowDown" : "ArrowRight";
+    if (event.key === previousKey) next = (index + classTabs.length - 1) % classTabs.length;
+    else if (event.key === nextKey) next = (index + 1) % classTabs.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = classTabs.length - 1;
+    else return;
+    event.preventDefault();
+    activateClassTab(classTabs[next]);
+    classTabs[next].focus();
+  });
 });
 
 // 체험 수업 안내 보기 (click 이벤트)
@@ -580,7 +713,8 @@ function cancelRegistration(id) {
 }
 
 function registrationClasses(record) {
-  return record.mixClass ? record.className + " + " + record.mixClass : record.className;
+  const first = record.className + (record.days ? " · " + scheduleLabel(record.className, record.days) : "");
+  return record.mixClass ? first + " + " + record.mixClass + (record.mixDays ? " · " + scheduleLabel(record.mixClass, record.mixDays) : "") : first;
 }
 
 function addRegistration() {
@@ -707,7 +841,13 @@ historyDetail.addEventListener("close", function () {
   cancelConfirm.hidden = true;
   selectedRegistrationId = null;
   if (detailOpener && detailOpener.isConnected) detailOpener.focus();
-  else document.querySelector("#historyTitle").focus();
+  else {
+    const selectedFilter = Array.from(historyFilters).find(function (button) {
+      return button.getAttribute("aria-pressed") === "true";
+    });
+    if (selectedFilter) selectedFilter.focus();
+    else document.querySelector("#historyTitle").focus();
+  }
 });
 
 document.querySelector("#historyStart").addEventListener("click", function () {

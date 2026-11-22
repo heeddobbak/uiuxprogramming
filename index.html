@@ -47,7 +47,7 @@
       <h3>CHOOSE YOUR DANCE</h3>
       <p>초이스 댄스 스튜디오는 누구나 즐겁게 춤을 배우고 자신에게 맞는 댄스를 선택할 수 있는 공간입니다.</p>
 
-      <img src="./assets/images/choisdancestudio.png" alt="초이스 댄스 스튜디오 로고">
+      <img src="./assets/images/choisdancestudio.png" alt="CHOI'S DANCE STUDIO — 초이스 댄스 스튜디오 브랜드 이미지">
     </section>
 
     <section id="features">
@@ -79,7 +79,7 @@
 
       </div>
 
-      <div id="feature-danceeter" class="panel is-active" role="tabpanel" aria-labelledby="tab-danceeter">
+      <div id="feature-danceeter" class="panel is-active" tabindex="0" role="tabpanel" aria-labelledby="tab-danceeter">
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -89,7 +89,7 @@
         </ul>
       </div>
 
-      <div id="feature-shuffle" class="panel" role="tabpanel" aria-labelledby="tab-shuffle" hidden>
+      <div id="feature-shuffle" class="panel" tabindex="0" role="tabpanel" aria-labelledby="tab-shuffle" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -100,7 +100,7 @@
       </div>
 
 
-      <div id="feature-kids" class="panel" role="tabpanel" aria-labelledby="tab-kids" hidden>
+      <div id="feature-kids" class="panel" tabindex="0" role="tabpanel" aria-labelledby="tab-kids" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -111,7 +111,7 @@
       </div>
 
 
-      <div id="feature-kpop" class="panel" role="tabpanel" aria-labelledby="tab-kpop" hidden>
+      <div id="feature-kpop" class="panel" tabindex="0" role="tabpanel" aria-labelledby="tab-kpop" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -182,12 +182,12 @@
         <div id="registerStep1" class="register-step">
           <h3>1. 신청자 정보</h3>
 
-          <label for="name">이름</label>
+          <label for="name">이름 <span class="required-label">(필수)</span></label>
           <input type="text" id="name" name="name" minlength="2" maxlength="30" autocomplete="name" placeholder="이름을 입력하세요" aria-describedby="nameHelp nameError" required>
           <p id="nameHelp" aria-live="polite">이름은 2자 이상 입력해주세요.</p>
           <p id="nameError" class="register-error" aria-live="polite"></p>
 
-          <label for="phone">휴대전화 번호</label>
+          <label for="phone">휴대전화 번호 <span class="required-label">(필수)</span></label>
           <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="numeric" placeholder="010-1234-5678"
             aria-describedby="phoneHelp phoneError" required>
           <p id="phoneHelp" aria-live="polite">010부터 입력해주세요.</p>
@@ -204,7 +204,7 @@
         <div id="registerStep2" class="register-step" hidden>
           <h3>2. 수강 조건 선택</h3>
 
-          <label for="registerPlan">수강 유형</label>
+          <label for="registerPlan">수강 유형 <span class="required-label">(필수)</span></label>
           <select id="registerPlan" name="registerPlan" aria-describedby="planHelp planError" required>
             <option value="">수강 유형을 선택하세요</option>
             <option value="주 2회 (월 8회)">주 2회 (월 8회)</option>
@@ -215,7 +215,7 @@
           <p id="planError" class="register-error" aria-live="polite"></p>
           <p id="planHelp">수강 유형을 선택해주세요. Mix 4회는 서로 다른 두 클래스를 함께 수강하는 유형입니다.</p>
 
-          <label for="registerClass">신청 클래스</label>
+          <label for="registerClass">신청 클래스 <span class="required-label">(필수)</span></label>
           <select id="registerClass" name="registerClass" aria-describedby="classHelp classError" required>
             <option value="">클래스를 선택하세요</option>
             <option value="Dance-eter">Dance-eter</option>
@@ -229,9 +229,20 @@
           <p id="classError" class="register-error" aria-live="polite"></p>
           <p id="classHelp">수강할 클래스를 하나 선택해주세요. 필수 선택 항목입니다.</p>
 
+          <label for="classDays">수강 요일 <span class="required-label">(필수)</span></label>
+          <select id="classDays" name="classDays" aria-describedby="classDaysHelp classDaysError classSchedule" required>
+            <option value="">수강 요일을 선택하세요</option>
+            <option value="화·목">화·목 클래스</option>
+            <option value="수·금">수·금 클래스</option>
+            <option value="화·수·목·금" hidden disabled>화·수·목·금 (주 4회)</option>
+          </select>
+          <p id="classDaysHelp">화·목 클래스 또는 수·금 클래스를 선택해주세요. 주 4회는 화·수·목·금에 수강합니다.</p>
+          <p id="classDaysError" class="register-error" aria-live="polite"></p>
+          <p id="classSchedule" role="status" aria-live="polite" hidden></p>
+
           <div id="mixClassField" hidden>
-            <label for="mixClass">함께 수강할 클래스</label>
-            <select id="mixClass" name="mixClass" aria-describedby="mixHelp mixError" disabled>
+            <label for="mixClass">함께 수강할 클래스 <span class="required-label">(Mix 필수)</span></label>
+            <select id="mixClass" name="mixClass" aria-describedby="mixHelp mixError mixScheduleStatus" disabled>
               <option value="">두 번째 클래스를 선택하세요</option>
               <option value="Dance-eter">Dance-eter</option>
               <option value="Easy Shuffle">Easy Shuffle</option>
@@ -241,7 +252,21 @@
               <option value="K-POP Dance (오후 8시)">K-POP Dance (오후 8시)</option>
             </select>
             <p id="mixError" class="register-error" aria-live="polite"></p>
-            <p id="mixHelp">Mix 4회는 첫 번째 클래스와 다른 두 번째 클래스를 반드시 선택해주세요.</p>
+            <p id="mixHelp">Mix 4회는 서로 다른 두 클래스를 선택합니다. 요일과 시간이 겹치는지 함께 확인합니다.</p>
+            <label for="mixDays">함께 수강할 요일 <span class="required-label">(Mix 필수)</span></label>
+            <select id="mixDays" name="mixDays" aria-describedby="mixDaysHelp mixDaysError mixScheduleStatus" disabled>
+              <option value="">수강 요일을 선택하세요</option>
+              <option value="화·목">화·목 클래스</option>
+              <option value="수·금">수·금 클래스</option>
+            </select>
+            <p id="mixDaysHelp">두 번째 클래스의 화·목 클래스 또는 수·금 클래스를 선택해주세요.</p>
+            <p id="mixDaysError" class="register-error" aria-live="polite"></p>
+            <p id="mixScheduleStatus" role="status" aria-live="polite"></p>
+            <div id="mixAlternatives" hidden>
+              <h4>변경 가능한 수업</h4>
+              <p>아래 조합을 누르면 두 번째 클래스와 요일이 변경됩니다.</p>
+              <ul id="mixAlternativeList" role="list"></ul>
+            </div>
           </div>
 
           <div class="register-actions">
@@ -301,7 +326,7 @@
       </div>
 
       <p>카카오톡 채널을 통해서도 수강 문의 및 신청이 가능합니다.</p>
-      <img src="./assets/images/kakao-channel-qr.jpg" alt="초이스 댄스 스튜디오 카카오톡 채널 QR코드">
+      <img src="./assets/images/kakao-channel-qr.jpg" alt="초이스 댄스 스튜디오 카카오톡 채널로 연결되는 QR코드">
     </section>
 
     <section id="registration-history" aria-labelledby="historyTitle">

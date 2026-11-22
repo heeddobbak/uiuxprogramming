@@ -55,7 +55,7 @@ h1 {
     font-size: 48px;
     font-weight: 800;
     line-height: 1.2;
-    letter-spacing: -.0.2em;
+    letter-spacing: -0.02em;
 }
 
 h2 {
@@ -677,3 +677,45 @@ button:active {
     #mainNav a { min-height: 44px; }
     .history-filters button { width: auto; flex: 1 1 90px; }
 }
+
+/* 11주차: 웹 접근성 개선 */
+:focus-visible {
+    outline: 3px solid #3c3c9d;
+    outline-offset: 3px;
+}
+button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 3px solid #3c3c9d;
+    outline-offset: 3px;
+}
+button:focus-visible { box-shadow: 0 0 0 3px #fff; }
+input, select { border-color: #74748a; }
+input::placeholder { color: #626273; opacity: 1; }
+#mainNav a[aria-current], .history-filter[aria-pressed="true"], .tab[aria-selected="true"] {
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+.required-label { font-size: 0.85em; color: #555763; }
+#register-form button:disabled { opacity: 1; }
+a { text-underline-offset: 3px; }
+
+#mixAlternatives { margin-top: 12px; }
+#mixAlternatives h4 { margin: 12px 0 6px; }
+#mixAlternativeList { list-style: none; padding-left: 0; }
+#mixAlternativeList li { margin: 8px 0; }
+#mixAlternativeList button { text-align: left; white-space: normal; }
+#classSchedule, #mixScheduleStatus { line-height: 1.6; overflow-wrap: anywhere; }
+
+#mixAlternativeList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 8px 20px;
+}
+#mixAlternativeList li { margin: 0; }
+#mixAlternativeList button { width: 100%; min-height: 44px; }
+
+/* 대안 수업 카드는 클래스·요일 / 시간의 두 줄로 통일 */
+#mixAlternativeList button { height: 100%; padding: 12px; }
+.mix-card-title, .mix-card-time { display: block; line-height: 1.5; }
+.mix-card-title { font-size: 16px; }
+.mix-card-time { margin-top: 4px; font-size: 16px; }
