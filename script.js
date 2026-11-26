@@ -1,4 +1,4 @@
-/* 7·8·9·10·11주차 수강 신청 및 내역 관리 프로토타입 */
+/* 7·8·9·10·11·12주차 수강 신청 및 내역 관리 프로토타입 */
 
 // 10주차: 주소에 맞는 메뉴 표시와 모바일 메뉴 상태 관리
 const mainNav = document.querySelector("#mainNav");
@@ -80,6 +80,109 @@ mobileMenu.addEventListener("change", syncMenuLayout);
 syncMenuLayout();
 updateCurrentNav();
 
+// 12주차: 루트 요소와 설정만 바꿔 재사용하는 UI 컴포넌트
+function initializeTabs(root) {
+  const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+  const panels = Array.from(root.querySelectorAll('[role="tabpanel"]'));
+  const tabList = root.querySelector('[role="tablist"]');
+  const verticalQuery = root.dataset.verticalQuery ? window.matchMedia(root.dataset.verticalQuery) : null;
+  function activate(tab, focus = false) {
+    if (!tabs.includes(tab)) return;
+    tabs.forEach(function (item) {
+      const selected = item === tab;
+      item.classList.toggle("is-active", selected);
+      item.setAttribute("aria-selected", String(selected));
+      item.tabIndex = selected ? 0 : -1;
+    });
+    panels.forEach(function (panel) {
+      const selected = panel.id === tab.getAttribute("aria-controls");
+      panel.classList.toggle("is-active", selected);
+      panel.hidden = !selected;
+      panel.tabIndex = selected ? 0 : -1;
+    });
+    if (focus) tab.focus();
+  }
+  function syncOrientation() {
+    tabList.setAttribute("aria-orientation", verticalQuery && verticalQuery.matches ? "vertical" : "horizontal");
+  }
+  if (verticalQuery) verticalQuery.addEventListener("change", syncOrientation);
+  syncOrientation();
+  tabs.forEach(function (tab, index) {
+    tab.addEventListener("click", function () { activate(tab); });
+    tab.addEventListener("keydown", function (event) {
+      const vertical = tabList.getAttribute("aria-orientation") === "vertical";
+      let next = index;
+      if (event.key === (vertical ? "ArrowUp" : "ArrowLeft")) next = (index + tabs.length - 1) % tabs.length;
+      else if (event.key === (vertical ? "ArrowDown" : "ArrowRight")) next = (index + 1) % tabs.length;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      activate(tabs[next], true);
+    });
+  });
+  if (tabs.length) activate(tabs.find(function (tab) { return tab.getAttribute("aria-selected") === "true"; }) || tabs[0]);
+  return { activate: activate };
+}
+
+function createModal(dialog, options = {}) {
+  let opener = null;
+  let restoreFocus = true;
+  function open(trigger = document.activeElement) {
+    if (dialog.open) return;
+    opener = trigger;
+    restoreFocus = true;
+    dialog.showModal();
+    const initial = dialog.querySelector('[data-modal-initial-focus]');
+    if (initial) initial.focus();
+  }
+  function close(settings = {}) {
+    if (!dialog.open) return;
+    restoreFocus = settings.restoreFocus !== false;
+    dialog.close();
+  }
+  dialog.querySelectorAll('[data-modal-close]').forEach(function (button) {
+    button.addEventListener("click", function () { close(); });
+  });
+  // 표시 중인 컨트롤을 매번 읽어 취소 확인 영역의 열림·닫힘도 반영한다.
+  dialog.addEventListener("keydown", function (event) {
+    if (event.key !== "Tab") return;
+    const controls = Array.from(dialog.querySelectorAll('button, a[href], input, select, textarea, [tabindex]')).filter(function (element) {
+      return !element.disabled && element.tabIndex >= 0 && element.getClientRects().length > 0;
+    });
+    if (!controls.length) {
+      event.preventDefault();
+      dialog.setAttribute("tabindex", "-1");
+      dialog.focus();
+      return;
+    }
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    const active = document.activeElement;
+    if (!controls.includes(active) || (event.shiftKey && active === first) || (!event.shiftKey && active === last)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  });
+  // Escape로 닫기는 브라우저의 기본 dialog 동작을 사용한다.
+  dialog.addEventListener("close", function () {
+    if (restoreFocus) {
+      const target = opener && opener.isConnected && !opener.disabled ? opener :
+        (options.getReturnFocus ? options.getReturnFocus() : null);
+      if (target) target.focus();
+    }
+    opener = null;
+  });
+  return { open: open, close: close };
+}
+
+function createTextElement(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  element.textContent = text;
+  return element;
+}
+
 // 신청 정보 저장
 const formData = {
   name: "",
@@ -95,7 +198,6 @@ const formData = {
 const registerStart = document.querySelector("#registerStart");
 const registerDialog = document.querySelector("#registerDialog");
 const openRegisterDialog = document.querySelector("#openRegisterDialog");
-const closeRegisterDialog = document.querySelector("#closeRegisterDialog");
 const confirmRegisterStart = document.querySelector("#confirmRegisterStart");
 
 const registerProgress = document.querySelector("#registerProgress");
@@ -222,17 +324,14 @@ function formatPhoneNumber(value) {
   );
 }
 
-// 신청 안내 팝업
-openRegisterDialog.addEventListener("click", function () {
-  registerDialog.showModal();
-});
-
-closeRegisterDialog.addEventListener("click", function () {
-  registerDialog.close();
+// 같은 모달 컴포넌트를 신청 안내와 내역 상세에서 사용한다.
+const registrationModal = createModal(registerDialog);
+openRegisterDialog.addEventListener("click", function (event) {
+  registrationModal.open(event.currentTarget);
 });
 
 confirmRegisterStart.addEventListener("click", function () {
-  registerDialog.close();
+  registrationModal.close({ restoreFocus: false });
   showStep(0);
   nameInput.focus();
 });
@@ -539,47 +638,8 @@ restartRegister.addEventListener("click", function () {
 });
 
 
-// 클래스 소개 탭 전환 (click 이벤트)
-const classTabs = document.querySelectorAll(".tab");
-const classPanels = document.querySelectorAll(".panel");
-
-function activateClassTab(selectedTab) {
-  classTabs.forEach(function (tab) {
-    const selected = tab === selectedTab;
-    tab.classList.toggle("is-active", selected);
-    tab.setAttribute("aria-selected", String(selected));
-    tab.tabIndex = selected ? 0 : -1;
-  });
-  classPanels.forEach(function (panel) {
-    const selected = "#" + panel.id === selectedTab.dataset.target;
-    panel.classList.toggle("is-active", selected);
-    panel.hidden = !selected;
-  });
-}
-const tabList = document.querySelector(".tabs");
-const verticalTabs = window.matchMedia("(max-width: 768px)");
-function syncTabOrientation() {
-  tabList.setAttribute("aria-orientation", verticalTabs.matches ? "vertical" : "horizontal");
-}
-verticalTabs.addEventListener("change", syncTabOrientation);
-syncTabOrientation();
-classTabs.forEach(function (tab, index) {
-  tab.tabIndex = tab.getAttribute("aria-selected") === "true" ? 0 : -1;
-  tab.addEventListener("click", function () { activateClassTab(tab); });
-  tab.addEventListener("keydown", function (event) {
-    let next = index;
-    const previousKey = verticalTabs.matches ? "ArrowUp" : "ArrowLeft";
-    const nextKey = verticalTabs.matches ? "ArrowDown" : "ArrowRight";
-    if (event.key === previousKey) next = (index + classTabs.length - 1) % classTabs.length;
-    else if (event.key === nextKey) next = (index + 1) % classTabs.length;
-    else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = classTabs.length - 1;
-    else return;
-    event.preventDefault();
-    activateClassTab(classTabs[next]);
-    classTabs[next].focus();
-  });
-});
+// 각 루트 안에서만 상태를 관리하므로 여러 탭 묶음이 서로 간섭하지 않는다.
+const tabComponents = Array.from(document.querySelectorAll('[data-ui-tabs]')).map(initializeTabs);
 
 // 체험 수업 안내 보기 (click 이벤트)
 const infoButton = document.querySelector("#infoButton");
@@ -642,7 +702,6 @@ const cancelConfirm = document.querySelector("#cancelConfirm");
 const cancelFeedback = document.querySelector("#cancelFeedback");
 const requestCancellation = document.querySelector("#requestCancellation");
 let selectedRegistrationId = null;
-let detailOpener = null;
 let storageAvailable = true;
 let registrations = loadRegistrations();
 const historyFilters = document.querySelectorAll(".history-filter");
@@ -653,6 +712,16 @@ const historyShowAll = document.querySelector("#historyShowAll");
 const historyStart = document.querySelector("#historyStart");
 let currentHistoryFilter = "all";
 const filterLabels = { all: "전체", active: "신청 완료", cancelled: "취소됨" };
+const historyModal = createModal(historyDetail, {
+  getReturnFocus: function () {
+    // 목록이 다시 그려졌다면 같은 내역의 새 버튼을 찾고, 없으면 선택 필터로 돌아간다.
+    return Array.from(historyList.querySelectorAll('[data-registration-id]')).find(function (button) {
+      return button.dataset.registrationId === selectedRegistrationId;
+    }) || Array.from(historyFilters).find(function (button) {
+      return button.getAttribute("aria-pressed") === "true";
+    }) || document.querySelector("#historyTitle");
+  }
+});
 
 function selectHistoryFilter(filter) {
   currentHistoryFilter = filter;
@@ -751,31 +820,28 @@ function renderRegistrations() {
     "다른 상태를 선택하거나 전체 내역을 확인해주세요.";
   historyStart.hidden = !noHistory;
   historyShowAll.hidden = noHistory || visible.length > 0;
-  visible.forEach(function (record) {
-    const item = document.createElement("li");
-    item.className = "history-card";
-    const title = document.createElement("h3");
-    title.textContent = registrationClasses(record);
-    const plan = document.createElement("p");
-    plan.textContent = record.plan;
-    const date = document.createElement("p");
-    date.textContent = "신청일: " + new Date(record.createdAt).toLocaleString("ko-KR");
-    const status = document.createElement("span");
-    status.className = "history-status" + (record.status === "cancelled" ? " is-cancelled" : "");
-    status.textContent = record.status === "cancelled" ? "취소됨" : "신청 완료";
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = "상세 보기";
-    button.setAttribute("aria-label", registrationClasses(record) + " 신청 상세 보기");
-    button.addEventListener("click", function () {
-      selectedRegistrationId = record.id;
-      detailOpener = button;
-      renderRegistrationDetail();
-      historyDetail.showModal();
-    });
-    item.append(title, plan, date, status, button);
-    historyList.append(item);
+  visible.forEach(function (record) { historyList.append(createRegistrationCard(record)); });
+}
+
+// 공통 구조는 한 번만 정의하고 클래스·요일·상태는 데이터로 채운다.
+function createRegistrationCard(record) {
+  const item = document.createElement("li");
+  item.className = "history-card ui-card";
+  const title = createTextElement("h3", "ui-card__title", registrationClasses(record));
+  const plan = createTextElement("p", "ui-card__plan", record.plan);
+  const date = createTextElement("p", "ui-card__date", "신청일: " + new Date(record.createdAt).toLocaleString("ko-KR"));
+  const status = createTextElement("span", "history-status" + (record.status === "cancelled" ? " is-cancelled" : ""), record.status === "cancelled" ? "취소됨" : "신청 완료");
+  const button = createTextElement("button", "ui-card__detail", "상세 보기");
+  button.type = "button";
+  button.dataset.registrationId = record.id;
+  button.setAttribute("aria-label", registrationClasses(record) + " 신청 상세 보기");
+  button.addEventListener("click", function () {
+    selectedRegistrationId = record.id;
+    renderRegistrationDetail();
+    historyModal.open(button);
   });
+  item.append(title, plan, date, status, button);
+  return item;
 }
 
 function renderRegistrationDetail() {
@@ -834,20 +900,9 @@ document.querySelector("#confirmCancellation").addEventListener("click", functio
   }
 });
 
-document.querySelector("#closeHistoryDetail").addEventListener("click", function () {
-  historyDetail.close();
-});
 historyDetail.addEventListener("close", function () {
   cancelConfirm.hidden = true;
   selectedRegistrationId = null;
-  if (detailOpener && detailOpener.isConnected) detailOpener.focus();
-  else {
-    const selectedFilter = Array.from(historyFilters).find(function (button) {
-      return button.getAttribute("aria-pressed") === "true";
-    });
-    if (selectedFilter) selectedFilter.focus();
-    else document.querySelector("#historyTitle").focus();
-  }
 });
 
 document.querySelector("#historyStart").addEventListener("click", function () {

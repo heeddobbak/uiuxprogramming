@@ -50,28 +50,28 @@
       <img src="./assets/images/choisdancestudio.png" alt="CHOI'S DANCE STUDIO — 초이스 댄스 스튜디오 브랜드 이미지">
     </section>
 
-    <section id="features">
+    <section id="features" class="ui-tabs" data-ui-tabs data-vertical-query="(max-width: 768px)">
       <h2>클래스 소개</h2>
 
-      <div class="tabs" role="tablist" aria-label="클래스 선택">
-        <button id="tab-danceeter" class="tab is-active" type="button" role="tab" aria-selected="true"
+      <div class="tabs ui-tablist" role="tablist" aria-label="클래스 선택">
+        <button id="tab-danceeter" class="tab ui-tab is-active" type="button" role="tab" aria-selected="true"
           aria-controls="feature-danceeter" data-target="#feature-danceeter">
           Dance-eter
         </button>
 
-        <button id="tab-shuffle" class="tab" type="button" role="tab" aria-selected="false"
+        <button id="tab-shuffle" class="tab ui-tab" type="button" role="tab" aria-selected="false"
           aria-controls="feature-shuffle" data-target="#feature-shuffle">
           Easy Shuffle
         </button>
 
 
-        <button id="tab-kids" class="tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kids"
+        <button id="tab-kids" class="tab ui-tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kids"
           data-target="#feature-kids">
           Kids K-POP
         </button>
 
 
-        <button id="tab-kpop" class="tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kpop"
+        <button id="tab-kpop" class="tab ui-tab" type="button" role="tab" aria-selected="false" aria-controls="feature-kpop"
           data-target="#feature-kpop">
           K-POP Dance
         </button>
@@ -79,7 +79,7 @@
 
       </div>
 
-      <div id="feature-danceeter" class="panel is-active" tabindex="0" role="tabpanel" aria-labelledby="tab-danceeter">
+      <div id="feature-danceeter" class="panel ui-tabpanel is-active" tabindex="0" role="tabpanel" aria-labelledby="tab-danceeter">
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -89,7 +89,7 @@
         </ul>
       </div>
 
-      <div id="feature-shuffle" class="panel" tabindex="0" role="tabpanel" aria-labelledby="tab-shuffle" hidden>
+      <div id="feature-shuffle" class="panel ui-tabpanel" tabindex="0" role="tabpanel" aria-labelledby="tab-shuffle" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -100,7 +100,7 @@
       </div>
 
 
-      <div id="feature-kids" class="panel" tabindex="0" role="tabpanel" aria-labelledby="tab-kids" hidden>
+      <div id="feature-kids" class="panel ui-tabpanel" tabindex="0" role="tabpanel" aria-labelledby="tab-kids" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -111,7 +111,7 @@
       </div>
 
 
-      <div id="feature-kpop" class="panel" tabindex="0" role="tabpanel" aria-labelledby="tab-kpop" hidden>
+      <div id="feature-kpop" class="panel ui-tabpanel" tabindex="0" role="tabpanel" aria-labelledby="tab-kpop" hidden>
 
         <ul class="feature-list">
           <li class="feature-card">
@@ -147,8 +147,8 @@
       </div>
 
       <!-- 신청 안내 팝업 -->
-      <dialog id="registerDialog" aria-labelledby="registerDialogTitle">
-        <h3 id="registerDialogTitle">수강 신청 안내</h3>
+      <dialog class="ui-modal" id="registerDialog" aria-labelledby="registerDialogTitle">
+        <h3 id="registerDialogTitle" class="ui-modal__title" tabindex="-1" data-modal-initial-focus>수강 신청 안내</h3>
         <p>
           신청자 정보와 원하는 수강 조건을 입력하고,
           마지막 단계에서 신청 내용을 확인합니다.
@@ -159,7 +159,7 @@
         </p>
 
         <div class="register-actions">
-          <button id="closeRegisterDialog" type="button">
+          <button id="closeRegisterDialog" type="button" data-modal-close aria-label="수강 신청 안내 닫고 돌아가기">
             돌아가기
           </button>
           <button id="confirmRegisterStart" type="button">
@@ -339,15 +339,15 @@
       </div>
       <p id="historyResults" role="status" aria-live="polite"></p>
       <p id="historyNotice" role="status" aria-live="polite"></p>
-      <div id="historyEmpty" class="history-card">
+      <div id="historyEmpty" class="history-card ui-card">
         <h3 id="historyEmptyTitle">아직 신청 내역이 없습니다.</h3>
         <p id="historyEmptyDescription">원하는 클래스에 신청하면 이곳에서 내역을 확인하고 취소할 수 있습니다.</p>
         <button id="historyStart" type="button">수강 신청 시작하기</button>
         <button id="historyShowAll" type="button" hidden>전체 내역 보기</button>
       </div>
       <ul id="historyList" class="history-list" aria-label="저장된 신청 목록"></ul>
-      <dialog id="historyDetail" aria-labelledby="historyDetailTitle">
-        <h3 id="historyDetailTitle">신청 상세 내역</h3>
+      <dialog class="ui-modal ui-modal--wide" id="historyDetail" aria-labelledby="historyDetailTitle">
+        <h3 id="historyDetailTitle" class="ui-modal__title" tabindex="-1" data-modal-initial-focus>신청 상세 내역</h3>
         <dl id="historyDetailContent" class="register-summary"></dl>
         <p id="cancelFeedback" role="status" aria-live="polite"></p>
         <div id="cancelConfirm" hidden>
@@ -358,7 +358,7 @@
           </div>
         </div>
         <div class="register-actions">
-          <button id="closeHistoryDetail" type="button">목록으로 돌아가기</button>
+          <button id="closeHistoryDetail" type="button" data-modal-close aria-label="신청 상세 닫고 목록으로 돌아가기">목록으로 돌아가기</button>
           <button id="requestCancellation" class="danger-button" type="button">신청 취소</button>
         </div>
       </dialog>
